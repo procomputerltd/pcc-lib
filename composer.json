@@ -1,0 +1,30 @@
+{
+    "name": "procomputer/pcc-lib",
+    "description": "Pro Computer's Utility Library for PHP.",
+    "keywords": ["template", "composer", "package"],
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "James R. Steel",
+            "email": "jim-steel@pccglobal.com"
+        }
+    ],
+    "type": "library",
+    "require": {
+        "php":                               "^7.1",
+        "zendframework/zend-stdlib":         "^2.7.7 || ^3.0.1"
+    },
+    "require-dev": {
+		"phpunit/phpunit": "6.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Procomputer\\Pcclib\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Procomputer\\Pcclib\\Tests\\": "tests\/"
+        }
+    }
+}
