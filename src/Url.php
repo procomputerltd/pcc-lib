@@ -337,6 +337,23 @@ class Url {
     }
 
     /**
+     * Assembles a URL query string.
+     *
+     * @param array   $params Query parameters
+     * @param boolean $encode (optional) Encode the query string.
+     *
+     * @return string Returns assembled URL query string.
+     */
+    public static function urlAssembleQuery(array $params, $encode = false) {
+        array_walk($params, function(&$v, $k) {$v = $k . '=' . $v;});
+        $return = implode('&', $params);
+        if($encode) {
+            $return = urlencode($return);
+        }
+        return $return;
+    }
+
+    /**
      * Returns the server host full url like 'http://www.example.com'
      *
      * @param boolean $secure    (optional) If NULL the protocol is used: HTTP or HTTPS. If TRUE (or evaluates TRUE)

@@ -719,7 +719,7 @@ class FileSystem extends Common {
      * Use this to prevent overwrite of an existing file. Checks existence of a pathname. 
      * If the path exists, creates a unique name and returns that name.
      *
-     * @param string $pathname    Directory in which to create a unique filename.
+     * @param string $pathname    Original file from which to create a unique filename.
      * @param string $prefix      (optional) Prefix prepended to unique name.
      * @param int    $maxAttempts (optional) Maximum number of attempt to create unique filename before abort.
      *
@@ -794,14 +794,14 @@ class FileSystem extends Common {
      *
      * @return string Return expanded pathname.
      */
-    public static function getRealPath($path, $delimiter = "/") {
+    public static function getRealPath($path, $delimiter = DIRECTORY_SEPARATOR) {
         if(! is_string($path) || ! strlen(trim($path))) {
             $param = 'path';
             $expect = 'a file path string';
         }
         elseif(! is_string($delimiter)) {
             if(null === $delimiter) {
-                $delimiter = '/';
+                $delimiter = DIRECTORY_SEPARATOR;
             }
             else {
                 $param = 'delimiter';
@@ -1033,6 +1033,29 @@ class FileSystem extends Common {
         return $strPath;
     }
 
+    /**
+     * Replace slashes in a pathname with slashes used by the operating system.
+     *
+     * @param string $path The path in which to replace slashes.
+     *
+     * @return string Returns path with slashes replaced.
+     */
+    public static function replaceWithOsSlashes($path) {
+        return self::replaceSlashes($path);
+    }
+    
+    /**
+     * Replace slashes in a pathname with another character.
+     *
+     * @param string $path        The path in which to replace slashes.
+     * @param string $replacement (optional) The directory separator slash. Default DIRECTORY_SEPARATOR
+     *
+     * @return string Returns path with slashes replaced.
+     */
+    public static function replaceSlashes($path, $replacement = DIRECTORY_SEPARATOR) {
+        return str_replace(("\\" === $replacement) ? '/' : "\\", $replacement, $path);
+    }
+    
     /**
      * Returns the base filename part without the extension. Returns empty string if no path expression.
      *

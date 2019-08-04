@@ -107,7 +107,10 @@ class PhpErrorHandler {
     public function getErrorMsg($defaultMsg, $prefix = '') {
         $msg = empty($prefix) ? '' : $prefix;
         $errStr = empty($this->lastError) ? $defaultMsg : $this->lastError;
-        if(! empty($msg) && ! empty($errStr)) {
+        if(empty($msg)) {
+            $msg = $errStr;
+        }
+        elseif(! empty($errStr)) {
             $msg .= ': ' . $errStr;
         }
         return $msg;
