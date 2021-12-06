@@ -243,9 +243,14 @@ class Image Extends Common {
                 }
                 throw new Exception\InvalidArgumentException($msg, $code);
             }
-            $obj = new ImageProperties();
-            $destProperties = $obj($destFile);
-            $identical = $this->_identicalProperties($destProperties, $imageProperties);
+            if(filesize($destFile)) {            
+                $obj = new ImageProperties();
+                $destProperties = $obj($destFile);
+                $identical = $this->_identicalProperties($destProperties, $imageProperties);
+            }
+            else {
+                $identical = false;
+            }
         }
         else {
             $identical = false;
