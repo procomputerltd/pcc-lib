@@ -31,7 +31,7 @@ class FileInformation {
     public function getFileMimeType($fileOrData, $isData = false) {
         if(class_exists('\finfo', false)) {
             try {
-                $info = new finfo();
+                $info = new \finfo();
                 if($isData) {
                     $mime = $info->buffer($fileOrData, FILEINFO_MIME);
                 }

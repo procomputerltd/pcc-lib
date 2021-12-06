@@ -20,6 +20,12 @@ namespace Procomputer\Pcclib;
  */
 class Url {
 
+    /**
+     * The original URI
+     * @var string 
+     */
+    public $uri = "";
+    
     public $protocol = "";            // http
     public $scheme = "";              // (alias for protocol)
     public $host = "";                // example.com
@@ -29,9 +35,9 @@ class Url {
     public $pathname = "";            // Script path: /phpMyAdmin/phpinfo.php
     public $query = "";               // arguments that follow the question mark after a url.
     public $fragment = "";            // Hashmark '#'.
-    public $host_and_port = "";       // example.com:4280
-    public $protocol_host_and_port = ""; // http://example.com:4280
-    public $server_url = "";          // (alias for above)
+    public $hostAndPort = "";       // example.com:4280
+    public $protocolHostAndPort = ""; // http://example.com:4280
+    public $serverUrl = "";          // (alias for above)
     public $href = "";                // Full script href: http://example.com:4280/basedir/index.php
     // The $_SERVER variables are always stored here during class construction.
     public $ServerUrl = "";           // http://www.example.com | http://localhost:4280
@@ -102,7 +108,8 @@ class Url {
      *  Assigns a new url to this object.
      */
     public function assign($uri) {
-        $parts = $this->parse($uri);
+        $this->uri = $uri;
+        $parts = self::parse($uri);
         $this->host = $parts["host"];
         $this->port = $parts["port"];
         $this->protocol = $parts["scheme"];
@@ -112,21 +119,27 @@ class Url {
         $this->pathname = $parts["path"];
         $this->query = $parts["query"];
         $this->fragment = $parts["fragment"];
-        if(strlen($this->host) && strlen($this->protocol)) {
-            // pccglobal.com:4280
-            $this->host_and_port = $this->host . ((empty($this->port) || 80 == $this->port) ? "" : (":" . $this->port));
-            // http://pccglobal.com:4280
-            $this->protocol_host_and_port = $this->protocol . "://" . $this->host_and_port;
-            $this->server_url = $this->protocol . "://" . $this->host_and_port;
-            // http://pccglobal.com:4280/basedir/index.php
-            $this->href = $this->protocol_host_and_port . $this->pathname;
+    }
+    
+    public function getHostAndPort() {
+        if(! strlen($this->host)) {
+            return '';
         }
+        return $this->host . ((empty($this->port) || 80 == $this->port) ? "" : (":" . $this->port));
+    }
+
+    public function getProtocolHostAndPort($defaultProtocol = 'http') {
+        $hostAndPort = $this->getHostAndPort();
+        if(! strlen($hostAndPort)) {
+            return '';
+        }
+        return (strlen($this->protocol) ? $this->protocol : $defaultProtocol) . "://" . $this->hostAndPort;
     }
 
     /**
      * Expands this class's path parts into a complete URI.
      */
-    public function expand() {
+    public function assemble($default_parts = null) {
         $parts = array(
             "scheme" => $this->protocol,
             "host" => $this->host,
@@ -136,53 +149,67 @@ class Url {
             "path" => $this->pathname,
             "query" => $this->query,
             "fragment" => $this->fragment);
-        return $this->expand_parts($parts);
+        return self::assembleUrl($parts, $default_parts);
     }
 
     /**
-     * Expands an array of URI path parts into a complete URI.
+     * Assembles an array of URI path parts into a complete URI.
      * Specify default_parts array of path parts when you want to
      * fill in missing items in the 'parts' parameter.
      */
-    public static function expand_parts($parts, $default_parts = null) {
-        if(!is_array($parts)) {
-            $parts = array();
-        }
+    public static function assembleUrl($parameters, $defaultParts = null) {
+        $parts = ($parameters instanceof Url) ? $parameters : (object)$parameters;
         $ary = array("scheme", "host", "port", "user", "pass", "path", "query", "fragment");
         foreach($ary as $key) {
-            $$key = isset($parts[$key]) ? $parts[$key] : "";
+            $$key = isset($parts->$key) ? $parts->$key : "";
+        }
+        if(!is_null($defaultParts)) {
+            $defaults = ($defaultParts instanceof Url) ? $defaultParts : (object)$defaultParts;
+            if(!strlen($host) && isset($defaults->host)) {
+                $host = $defaults->host;
+            }
+            if(!strlen($port) && isset($defaults->port)) {
+                $port = $defaults->port;
+            }
+            if(!strlen($scheme) && isset($defaults->scheme)) {
+                $scheme = $defaults->scheme;
+            }
         }
 
-        if(!is_null($default_parts) && is_array($default_parts)) {
-            if(!strlen($host) && isset($default_parts["host"])) {
-                $host = $default_parts["host"];
+        $url = trim($host, "\t \\/");
+        if(! empty($url)) {
+            $url = (strlen($scheme) ? strtolower(self::_parseScheme($scheme)) : "http") . "://" . $url;
+            // Authorization - not secure in over http, more secure
+            // over https, but still not fully secure.
+            if(strlen(trim($user))) {
+                if(strlen($pass)) {
+                    $user .= ":" . $pass;
+                }
+                $url .= $user . "@";
             }
-            if(!strlen($port) && isset($default_parts["port"])) {
-                $port = $default_parts["port"];
-            }
-            if(!strlen($scheme) && isset($default_parts["scheme"])) {
-                $scheme = $default_parts["scheme"];
+            // Specify the port if the port number is not the default port for the scheme e.g. port 80 for 'http'
+            $port = self::_getPort($port, $scheme);
+            if(! empty($port)) {
+                $url .= ':' . $port;
             }
         }
-
-        $scheme = strlen($scheme) ? strtolower(self::_parseScheme($scheme)) : "http";
-
-        // Specify the port if the port number is not the default port for the scheme e.g. port 80 for 'http'
-        $port = self::_getPort($port, $scheme);
-        $port = empty($port) ? "" : (":" . $port);
-
-        // Authorization - not secure in over http, more secure
-        // over https, but still not fully secure.
-        if(strlen(trim($user))) {
-            $user .= ":" . $pass . "@";
+        $path = str_replace("\\", "/", trim($path));
+        $path = ltrim($path, '/');
+        if(strlen($path)) {
+            if(strlen($url)) {
+                $url .= '/' . $path;
+            }
+            else {
+                $url = $path;
+            }
         }
         if(strlen($query)) {
-            $query = "?" . $query;
+            $url .= "?" . $query;
         }
         if(strlen($fragment)) {
-            $fragment = "#" . $fragment;
+            $url .= "#" . $fragment;
         }
-        return $scheme . "://" . $user . $host . $port . str_replace("\\", "/", $path) . $query . $fragment;
+        return $url;
     }
 
     /**
@@ -306,7 +333,7 @@ class Url {
             return "file:///" . str_replace("\\", "/", $uri);
         }
         $parts = self::parse($uri);
-        return self::expand_parts($parts);
+        return self::assembleUrl($parts);
     }
 
     public static function urlRemoveHashFragment($uri) {
@@ -616,7 +643,7 @@ class Url {
         return is_null($s) ? "" : trim(strval($s));
     }
 
-    protected function _parseScheme($scheme) {
+    protected static function _parseScheme($scheme) {
         return $scheme;
     }
     

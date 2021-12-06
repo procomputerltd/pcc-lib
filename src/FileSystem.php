@@ -920,10 +920,13 @@ class FileSystem extends Common {
                 break;
             }
         }
-        if(count($pre)) {
+        $n = count($pre);
+        if($n) {
             $paths = [];
-            array_walk($pre, function(&$val) use(&$paths) {
-                $val = trim($val, '/');
+            array_walk($pre, function(&$val) use(&$paths, &$n) {
+                if(--$n) {
+                    $val = trim($val, '/');
+                }
                 if(strlen($val)) {
                     $paths[] = $val;
                 }

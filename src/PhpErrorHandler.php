@@ -39,7 +39,6 @@ class PhpErrorHandler {
      *
      * @return mixed Returns the result of the call to the callable function.
      *
-     * @global string $php_errormsg
      */
     public function call($callable, $recordError = true) {
         global $php_errormsg;
@@ -53,7 +52,7 @@ class PhpErrorHandler {
                 set_error_handler('var_dump', 0);
                 @$ak9ikKjt6U7; // Uninitialized variable.
                 restore_error_handler();                 
-                $lastError = error_get_last();
+                $lastError = error_get_last(); // Retrieve last error to reset error handler.
             }
         }
         $track = ini_set('track_errors', 1);   // Copy error message to $php_errormsg.

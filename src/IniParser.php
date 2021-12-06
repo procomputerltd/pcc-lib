@@ -113,7 +113,7 @@ class IniParser {
                         $val = $matches[2];
                         $valLen = strlen($val);
                         if($valLen) {
-                            $q = $val{0};
+                            $q = $val[0];
                             if('"' === $q || "'" === $q) {
                                 $val = $this->_unquote($val);
                             }
@@ -140,7 +140,7 @@ class IniParser {
         if(! $len) {
             return '';
         }
-        $q = $val{0};
+        $q = $val[0];
         if('"' !== $q && "'" !== $q) {
             return $val;
         }
