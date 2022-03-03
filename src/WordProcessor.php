@@ -13,7 +13,7 @@ for more details.
     Author      : James R. Steel
     Description : Filesystem helper functions
 */
-namespace Joomla\Service;
+namespace Procomputer\Pcclib;
 
 class WordProcessor {
 
