@@ -38,9 +38,6 @@ class Hidden {
         $attr['type'] = 'hidden';
         $attr['name'] = $name;
         $attr['value'] = (string)$value;
-        if(! isset($attr['id'])) {
-            $attr['id'] = $name . '_id';
-        }
         $element = new Element();
         return $element('input', '', $attr, false);
     }

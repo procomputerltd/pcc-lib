@@ -24,7 +24,7 @@ use Procomputer\Pcclib\FileSystem;
     Created on  : Jan 01, 2016, 12:00:00 PM
     Organization: Pro Computer
     Author      : James R. Steel
-    Description : PHP Software by Pro Computer: Common methods used by media/image classes.
+    Description : PHP Software by Pro Computer: Common methods used by Media/Image classes.
 */
 class ImportImage {
 

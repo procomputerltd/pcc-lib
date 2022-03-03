@@ -48,7 +48,8 @@ class Checkbox {
         else {
             unset($attr['checked']);
         }
-        if('radio' !== strtolower($attr['type'])) {
+        // Could be type 'radio'
+        if(! isset($attr['type'])) {
             $attr['type'] = 'checkbox';
         }
         $element = new Element();

@@ -84,7 +84,7 @@ class Iptc {
           121 - Local Caption */
 
         if(! function_exists('iptcembed')) {
-            // cannot parse nor embed image IPTC code: IPTC functions are not enabled
+            // cannot embed IPTC code: IPTC functions are not enabled.
             throw new Exception\InvalidArgumentException(MediaConst::T_IPTC_NO_FUNCTION, MediaConst::E_IPTC_NO_FUNCTION);
         }
 
@@ -151,7 +151,7 @@ class Iptc {
      */
     public function getIPTCField($file, $IPTCFields = null, $section = 'APP13') {
         if(! function_exists('iptcparse')) {
-            // cannot parse nor embed image IPTC code: IPTC functions are not enabled
+            // cannot embed IPTC code: IPTC functions are not enabled
             throw new Exception\InvalidArgumentException(MediaConst::T_IPTC_NO_FUNCTION . ': iptcparse()', MediaConst::E_IPTC_NO_FUNCTION);
         }
 
@@ -218,8 +218,8 @@ class Iptc {
             $code = $properties['errno'];
             $errorMsg = $properties['error'];
         } catch(\Throwable $ex) {
-            $code = $ex->getCode();
-            $errorMsg = $ex->getMessage();
+            $code = $ex->getMessage();
+            $errorMsg = $ex->getCode();
             $properties = [];
         }
         if($throw) {

@@ -35,8 +35,6 @@ class IptcConst {
     const IPTC_REFERENCE_NUMBER = 50;
     const IPTC_CREATED_DATE = 55;
     const IPTC_CREATED_TIME = 60;
-    const IPTC_UPLOADED_TIME = 62;
-    const IPTC_TRANSFERRED_BY = 63;
     const IPTC_ORIGINATING_PROGRAM = 65;
     const IPTC_PROGRAM_VERSION = 70;
     const IPTC_OBJECT_CYCLE = 75;
@@ -71,8 +69,6 @@ class IptcConst {
             self::IPTC_REFERENCE_NUMBER                => 'Reference Number',
             self::IPTC_CREATED_DATE                    => 'Created Date',
             self::IPTC_CREATED_TIME                    => 'Created Time',
-            self::IPTC_UPLOADED_TIME                   => 'Uploaded Time',
-            self::IPTC_TRANSFERRED_BY                  => 'Transferred by',
             self::IPTC_ORIGINATING_PROGRAM             => 'Originating Program',
             self::IPTC_PROGRAM_VERSION                 => 'Program Version',
             self::IPTC_OBJECT_CYCLE                    => 'Object Cycle',

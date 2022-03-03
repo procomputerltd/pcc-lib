@@ -17,6 +17,9 @@ for more details.
 
 namespace Procomputer\Pcclib\Media;
 
+use Procomputer\Pcclib\Types;
+use Procomputer\Pcclib\Error;
+
 class ImageFilter {
     /**
      *
@@ -101,16 +104,6 @@ class ImageFilter {
                 break;
             }
 
-            if(function_exists('error_clear_last')) {
-                error_clear_last();
-            }
-            else {
-                // Set error_get_last value to known state,
-                set_error_handler('var_dump', 0);
-                @$ak9ikKjt6U7; // Uninitialized variable.
-                restore_error_handler();                 
-                $lastError = error_get_last(); // Retrieve last error to reset error handler.
-            }
             global $php_errormsg;
             $php_errormsg = '';
             ini_set('track_errors', 1);
@@ -136,26 +129,13 @@ class ImageFilter {
             if(false === $res) {
                 // a PHP image function has failed
                 // T_PHP_FUNCTION_FAILED = image function '%s' failed
-                if(method_exists('error_get_last')) {
-                    /* error_get_last() return array:
-                        [type]      => 8
-                        [message]   => The error message.
-                        [file]      => C:\WWW\index.php
-                        [line]      => 2
-                     */
-                    $array = error_get_last();
-                    $msg = isset($array['message']) ? $array['message'] : '';
-                }
-                elseif(! empty($php_errormsg)) {
-                    $msg = $php_errormsg;
-                }
-                if(empty($msg)) {
-                    $msg = "an unknown error occurred";
-                }
+                $msg = empty($php_errormsg) ? "an unknown error occurred" : $php_errormsg;
                 $msg = sprintf(MediaConst::T_PHP_FUNCTION_FAILED, "imagefilter", $msg);
                 throw new Exception\InvalidArgumentException($msg, MediaConst::E_PHP_FUNCTION_FAILED);
             }
         }
         return true;
     }
+
+    
 }

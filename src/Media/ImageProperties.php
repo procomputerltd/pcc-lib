@@ -130,18 +130,18 @@ class ImageProperties {
           http://us3.php.net/manual/en/function.image-type-to-mime-type.php
 
          */
-        $res['filename'          ] = $sourcePath;
-        $res['width'             ] = isset($properties[0]) ? floatval($properties[0]) : 0.0;
-        $res['height'            ] = isset($properties[1]) ? floatval($properties[1]) : 0.0;
-        $res['type'              ] = isset($properties[2]) ? intval($properties[2]) : MediaConst::IMAGETYPE_UNKNOWN;
-        $res['file_ext'          ] = ImageType::getImageType($res['type'], true); // File extension without dot.
-        $res['htmlSizeAttributes'] = isset($properties[3]) ? $properties[3] : '';
-        $res['mime'              ] = isset($properties['mime']) ? $properties['mime'] : '';
-        $res['channels'          ] = isset($properties['channels']) ? intval($properties['channels']) : '';
-        $res['bits'              ] = isset($properties['bits']) ? intval($properties['bits']) : '';
-        $res['errno'             ] = $code;
-        $res['error'             ] = $errorMsg;
-        $res['throw'             ] = $shouldThrow;
+        $res["filename"          ] = $sourcePath;
+        $res["width"             ] = isset($properties[0]) ? floatval($properties[0]) : 0.0;
+        $res["height"            ] = isset($properties[1]) ? floatval($properties[1]) : 0.0;
+        $res["type"              ] = isset($properties[2]) ? intval($properties[2]) : MediaConst::IMAGETYPE_UNKNOWN;
+        $res["file_ext"          ] = ImageType::getImageType($res["type"], true); // File extension without dot.
+        $res["htmlSizeAttributes"] = isset($properties[3]) ? $properties[3] : "";
+        $res["mime"              ] = isset($properties["mime"]) ? $properties["mime"] : "";
+        $res["channels"          ] = isset($properties["channels"]) ? intval($properties["channels"]) : "";
+        $res["bits"              ] = isset($properties["bits"]) ? intval($properties["bits"]) : "";
+        $res["errno"             ] = $code;
+        $res["error"             ] = $errorMsg;
+        $res["throw"             ] = $shouldThrow;
         $res['info'              ] = $info;
         return $res;
     }

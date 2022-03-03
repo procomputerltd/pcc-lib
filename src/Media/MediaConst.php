@@ -119,7 +119,7 @@ class MediaConst {
     const T_PROPERTY_NOT_FOUND = 'property not found: %s';
     const T_SOURCE_FILE_NOT_FOUND = "source file not found: '%s'";
     const T_IMAGE_SIZE_INVALID = "invalid image width(%s) and/or height(%s) parameters";
-    const T_IPTC_NO_FUNCTION = "cannot parse nor embed image IPTC code: IPTC functions are not enabled";
+    const T_IPTC_NO_FUNCTION = "cannot embed IPTC code: IPTC functions are not enabled";
     const T_IPTC_INVALID_IPTC_FIELD = "invalid IPTC embedding code '%s'";
     
 }

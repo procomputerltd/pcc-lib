@@ -11,7 +11,7 @@ for more details.
     Created on  : Jan 01, 2016, 12:00:00 PM
     Organization: Pro Computer
     Author      : James R. Steel
-    Description : Common class extended by media/image classes.
+    Description : Common class extended by Media/image classes.
 */
 namespace Procomputer\Pcclib\Media;
 
@@ -19,7 +19,7 @@ use Procomputer\Pcclib\PhpErrorHandler;
 use Procomputer\Pcclib\Types;
 
 /**
- * Common class extended by media/image classes.
+ * Common class extended by Media/image classes.
  */
 class Common {
 

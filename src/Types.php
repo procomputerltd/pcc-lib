@@ -125,15 +125,7 @@ class Types {
         }
         if(is_float($number)) {
             // NAN if conversion to string includes pound.
-            if(is_nan($number)) {
-                return false;
-            }
-            // NAN if conversion to string includes pound.
-            $strNum = strval($number);
-            if(is_numeric($number)) {
-                return true;
-            }
-            return false !== strpos($strNum, '#');
+            return (bool)(is_nan($number) || false !== strpos(strval($number), '#'));
         }
         if(!is_string($number)) {
             // NAN - non-string.

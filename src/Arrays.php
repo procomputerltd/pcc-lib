@@ -25,8 +25,9 @@ class Arrays {
      * 
      * @param array   $defaults         Defaults; initial name=>value pairs.
      * @param array   $options          Option key=>value pairs to extend (fold) into the Defaults.
-     * @param boolean $preserveOptions (optional, default=TRUE) When FALSE original options are unset
-     * @param boolean $caseInsensitive (optional, default=TRUE) When FALSE original key case unchanged.
+     * @param boolean $preserveOptions (optional, default=TRUE) When FALSE original options are unset so remainder 
+     *                                                          can be inspected for invalid/orphaned params
+     * @param boolean $caseInsensitive (optional, default=TRUE) When TRUE array keys are converted to lowercase.
      * @param boolean $omitNull        (optional, default=FALSE) When TRUE keys with NULL value are omitted.
      *
      * @return array
@@ -105,7 +106,7 @@ class Arrays {
         if(is_object($mixed) && method_exists($mixed, 'toArray')) {
             return $mixed->toArray();
         }
-        if($mixed instanceof Traversable) {
+        if($mixed instanceof \Traversable) {
             return (array)$mixed;
         }
         return $default;

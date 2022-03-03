@@ -12,8 +12,7 @@ for more details.
     Created on  : Jan 01, 2016, 12:00:00 PM
     Organization: Pro Computer
     Author      : James R. Steel
-    Description : This just calculates/resizes image dimensions returning an array of properties
-                  used by the 'Image' class.
+    Description : Image resizing function.
 */
 namespace Procomputer\Pcclib\Media;
 
