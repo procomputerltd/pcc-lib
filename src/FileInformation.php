@@ -98,7 +98,8 @@ class FileInformation {
         '3gp' => 'video/3gpp; audio/3gpp',
         '3g2' => 'video/3gpp2; audio/3gpp2',
         '7z' => 'application/x-7z-compressed',
-    ];                                                                
+    ];
+    
     /**
      * Attempts to determine a file's MIME type.
      *
@@ -142,7 +143,7 @@ class FileInformation {
             }
             if(empty($mime)) {
                 if(! $isData && function_exists('mime_content_type')) {
-                    $mime = $phpErrorHandler->call(function()use($fileOrData){return mime_content_type($fileOrData);});;
+                    $mime = $phpErrorHandler->call(function()use($fileOrData){return mime_content_type($fileOrData);});
                 }
                 if(empty($mime)) {
                     $filename = empty($name) ? $fileOrData : $name;
@@ -161,6 +162,25 @@ class FileInformation {
         return $mime;
     }
 
+    /**
+     * Attempts to determine a file's MIME type.
+     *
+     * @param string  $extension  file extension
+     *
+     * @return string
+     */
+    public function getFileMimeTypeFromExtension(string $extension) {
+        $ext = $extension;
+        if(false !== strpos($ext, '.')) {
+            $split = explode('.', $ext);
+            if(count($split)) {
+                $ext = array_pop($split);
+            }
+        }
+        $ext = strtolower(trim($ext));
+        return isset($this->_map[$ext]) ? $this->_map[$ext] : false;
+    }
+    
     /**
      * Returns a description for the specified file extension.
      * @param string $fileExtension The file extension for which to find description.
