@@ -73,6 +73,7 @@ class PhpErrorHandler {
             $eData->line = $exc->getLine();
             $eData->trace = $exc->getTrace();
         }
+        $this->lastErrorObj = $eData;
         $this->lastError = $eData->msg;
         return $res;
     }
