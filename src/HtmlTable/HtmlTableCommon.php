@@ -1,7 +1,7 @@
 <?php
 /**
  */
-namespace Procomputer\HtmlTable;
+namespace Procomputer\Pcclib\HtmlTable;
 
 use Procomputer\HtmlTable\HtmlTableRow;
 use Procomputer\HtmlTable\HtmlTableCol;

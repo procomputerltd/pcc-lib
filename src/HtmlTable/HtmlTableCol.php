@@ -2,7 +2,7 @@
 /**
  * Builds an HTML table.
  */
-namespace Procomputer\HtmlTable;
+namespace Procomputer\Pcclib\HtmlTable;
 
 class HtmlTableCol extends HtmlTableCommon {
     
