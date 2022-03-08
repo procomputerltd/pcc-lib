@@ -138,11 +138,13 @@ class WordProcessor {
     }
 
     /**
-     * Returns the array of words parsed.
+     * Returns array of words with options applied.
+     * @param array $options    (optional) Options.
      * @return array
      */
-    public function toArray() {
-        return $this->_data;
+    public function toArray(array $options = []) {
+        $lcOptions = array_change_key_case($options);
+        return $this->_getArray($this->_data, $lcOptions);
     }
     
     /**
@@ -151,12 +153,13 @@ class WordProcessor {
      * @param array $options    (optional) Options.
      * @return string
      */
-    public function toString($maxLength = 255, array $options = array()) {
-        $words = $this->_data;
+    public function toString($maxLength = 255, array $options = []) {
+        $lcOptions = array_change_key_case($options);
+        $words = $this->_getArray($this->_data, $lcOptions);
         if(empty($words)) {
             return '';
         }
-        $delim = isset($options['delimiter']) ? $options['delimiter'] : ' ';
+        $delim = isset($lcOptions['delimiter']) ? $lcOptions['delimiter'] : ' ';
         $delimLen = strlen($delim);
         $length = 0;
         $index = 0;
@@ -169,13 +172,26 @@ class WordProcessor {
             $length += $len;
             $index++;
         }
+        return implode($delim, $words);
+    }
+
+    /**
+     * Returns array of words with options applied.
+     * @param array $words   Array of words.
+     * @param array $options (optional) Options.
+     * @return array
+     */
+    protected function _getArray(array $words, array $options = []) {
+        if(empty($words)) {
+            return [];
+        }
         if(isset($options['lowercase']) && $options['lowercase']) {
             $words = array_map('strtolower', $words);
         }
         if(isset($options['capitalize']) && $options['capitalize']) {
             $words = array_map('ucfirst', $words);
         }
-        return implode($delim, $words);
+        return $words;
     }
 
     protected function _cleanText($text) {
