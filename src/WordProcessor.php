@@ -138,6 +138,14 @@ class WordProcessor {
     }
 
     /**
+     * Returns the array of words parsed.
+     * @return array
+     */
+    public function toArray() {
+        return $this->_data;
+    }
+    
+    /**
      * Joins words in the data into a string.
      * @param int   $maxLength  Maximum length of result string.
      * @param array $options    (optional) Options.

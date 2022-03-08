@@ -21,12 +21,19 @@ namespace Procomputer\Pcclib;
 class FileInformation {
 
     protected $_map = [    
-        'pdf' => 'application/pdf',
+        'htm' => 'text/html',
+        'html'=> 'text/html',
+        'asp' => 'text/html',
+        'aspx' => 'text/html',
         'jpeg' => 'image/jpeg',
         'jpg' => 'image/jpeg',
         'gif' => 'image/gif',
         'png' => 'image/png',
+        'css' => 'text/css',
+        'csv' => 'text/csv',
+        'pdf' => 'application/pdf',
         'php' => 'application/x-httpd-php',
+        'zip' => 'application/zip',
         'aac' => 'audio/aac',
         'abw' => 'application/x-abiword',
         'arc' => 'application/x-freearc',
@@ -39,15 +46,11 @@ class FileInformation {
         'bz2' => 'application/x-bzip2',
         'cda' => 'application/x-cdf',
         'csh' => 'application/x-csh',
-        'css' => 'text/css',
-        'csv' => 'text/csv',
         'doc' => 'application/msword',
         'docx' => 'application/vnd.openxml',
         'eot' => 'application/vnd.ms-fontobject',
         'epub' => 'application/epub+zip',
         'gz' => 'application/gzip',
-        'htm' => 'text/html',
-        'html'=> 'text/html',
         'ico' => 'image/vnd.microsoft.icon',
         'ics' => 'text/calendar',
         'jar' => 'application/java-archive',
@@ -94,7 +97,6 @@ class FileInformation {
         'xlsx' => 'application/vnd.openxml',
         'xml' => 'application/xml',
         'xul' => 'application/vnd.mozilla.xul+xml',
-        'zip' => 'application/zip',
         '3gp' => 'video/3gpp; audio/3gpp',
         '3g2' => 'video/3gpp2; audio/3gpp2',
         '7z' => 'application/x-7z-compressed',
@@ -163,11 +165,11 @@ class FileInformation {
     }
 
     /**
-     * Attempts to determine a file's MIME type.
+     * Attempts to determine a file's MIME type from its extension.
      *
      * @param string  $extension  file extension
      *
-     * @return string
+     * @return string|boolean Returns the file mime type of false if not found.
      */
     public function getFileMimeTypeFromExtension(string $extension) {
         $ext = $extension;
@@ -177,8 +179,8 @@ class FileInformation {
                 $ext = array_pop($split);
             }
         }
-        $ext = strtolower(trim($ext));
-        return isset($this->_map[$ext]) ? $this->_map[$ext] : false;
+        $lcExt = strtolower(trim($ext));
+        return isset($this->_map[$lcExt]) ? $this->_map[$lcExt] : false;
     }
     
     /**
