@@ -1,6 +1,6 @@
 # pcc-lib
 
-`procomputerltd/pcc-lib` is a set of components that implement 
+`procomputer/pcc-lib` is a set of components that implement 
 general purpose PHP utility classes for different scopes like:
 
 - file system functions;
