@@ -1,5 +1,5 @@
 {
-    "name": "procomputerltd/pcc-lib",
+    "name": "procomputer/pcc-lib",
     "description": "Pro Computer's Utility Library for PHP.",
     "keywords": ["template", "composer", "package"],
     "license": "BSD-3-Clause",
