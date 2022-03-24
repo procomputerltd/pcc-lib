@@ -17,6 +17,15 @@ namespace Procomputer\Pcclib;
 
 class WordProcessor {
 
+    const OPTION_CAPITALIZE    = 'capitalize'; 
+    const OPTION_DELIMITER     = 'delimiter';  
+    const OPTION_LOWERCASE     = 'lowercase'; 
+    const OPTION_MAX           = 'max';           // Maximum length of combined words.
+    const OPTION_MAXWORDLENGTH = 'maxwordlength'; 
+    const OPTION_NODUPLICATES  = 'noduplicates';
+    const OPTION_SPELLCHECK    = 'spellcheck';  
+    const OPTION_DO_NOT_FILTER = 'nofilterchars';  
+            
     // Patterns to replace inch(') and foot(") abbreviations, for example.
     protected $_findReplace = array();
 
@@ -95,44 +104,35 @@ class WordProcessor {
         if(null === $options) {
             $options = $this->_options;
         }
-
-        $defaults = array(
-            'max' => -1,
-            'lowercase' => false,
-            'ucfirst' => false,
-            'noDuplicates' => true,
-            'delimiter' => ' ',
-            'spellCheck' => false
-        );
-        $extOptions = $this->_extend($defaults, $options, false, true);
-
+        $extOptions = $this->_extendDefaults($options);
         if(!strlen($text = $this->_cleanText($this->_replaceAbbreviations($text, $this->getFindReplace())))) {
             return ;
         }
 
-        if($extOptions['lowercase']) {
+        if($extOptions[self::OPTION_LOWERCASE]) {
             $text = strtolower($text);
         }
         $parts = str_word_count($text, 1);
         if(!empty($parts)) {
             $this->_getCommonWords();
+            $maxWords = is_numeric($extOptions[self::OPTION_MAX]) ? intval($extOptions[self::OPTION_MAX]) : -1;
             foreach($parts as $word) {
-                if($extOptions['spellCheck'] && isset($this->_dictionary[strtolower($word)])) {
+                if($extOptions[self::OPTION_SPELLCHECK] && isset($this->_dictionary[strtolower($word)])) {
                     $word = $this->_dictionary[strtolower($word)];
                 }
-                $caseWord = $extOptions['lowercase'] ? $word : strtolower($word);
+                $caseWord = $extOptions[self::OPTION_LOWERCASE] ? $word : strtolower($word);
                 if(!ctype_punct($caseWord) && false === array_search($caseWord, $this->_commonWords)) {
-                    if($extOptions['ucfirst']) {
+                    if($extOptions[self::OPTION_CAPITALIZE]) {
                         $word = ucfirst($word);
                     }
                     $this->_data[] = $word;
-                    if($extOptions['max'] > 1    && count($this->_data) >= $extOptions['max']) {
+                    if($maxWords > 1 && count($this->_data) >= $maxWords) {
                         break;
                     }
                 }
             }
         }
-        if($extOptions['noDuplicates']) {
+        if($extOptions[self::OPTION_NODUPLICATES]) {
             $this->_data = array_values(array_flip(array_combine($this->_data, array_map('strtolower', $this->_data))));
         }
     }
@@ -143,8 +143,7 @@ class WordProcessor {
      * @return array
      */
     public function toArray(array $options = []) {
-        $lcOptions = array_change_key_case($options);
-        return $this->_getArray($this->_data, $lcOptions);
+        return $this->_getArray($this->_data, $this->_extendDefaults($options));
     }
     
     /**
@@ -154,12 +153,12 @@ class WordProcessor {
      * @return string
      */
     public function toString($maxLength = 255, array $options = []) {
-        $lcOptions = array_change_key_case($options);
-        $words = $this->_getArray($this->_data, $lcOptions);
+        $extOptions = $this->_extendDefaults($options);
+        $words = $this->_getArray($this->_data, $extOptions);
         if(empty($words)) {
             return '';
         }
-        $delim = isset($lcOptions['delimiter']) ? $lcOptions['delimiter'] : ' ';
+        $delim = isset($extOptions[self::OPTION_DELIMITER]) ? $extOptions[self::OPTION_DELIMITER] : ' ';
         $delimLen = strlen($delim);
         $length = 0;
         $index = 0;
@@ -185,10 +184,20 @@ class WordProcessor {
         if(empty($words)) {
             return [];
         }
-        if(isset($options['lowercase']) && $options['lowercase']) {
+        if(isset($options[self::OPTION_MAXWORDLENGTH]) && is_numeric($options[self::OPTION_MAXWORDLENGTH])) {
+            $max = intval($options[self::OPTION_MAXWORDLENGTH]);
+            if($max > 0) {
+                foreach($words as $k => $word) {
+                    if(strlen($word) > $max) {
+                        $words[$k] = substr($word, 0, $max);
+                    }
+                }
+            }
+        }
+        if(isset($options[self::OPTION_LOWERCASE]) && $options[self::OPTION_LOWERCASE]) {
             $words = array_map('strtolower', $words);
         }
-        if(isset($options['capitalize']) && $options['capitalize']) {
+        if(isset($options[self::OPTION_CAPITALIZE]) && $options[self::OPTION_CAPITALIZE]) {
             $words = array_map('ucfirst', $words);
         }
         return $words;
@@ -254,6 +263,25 @@ class WordProcessor {
         return $this;
     }
 
+    /**
+     * Extends (folds) option values (optionally CASE-INSENSITIVE) into associated default properties.
+     * @param array $options
+     * @return array
+     */
+    protected function _extendDefaults(array $options) {
+        $defaults = array(
+            self::OPTION_CAPITALIZE     => false,
+            self::OPTION_DELIMITER      => ' ',
+            self::OPTION_LOWERCASE      => false,
+            self::OPTION_MAX            => -1,
+            self::OPTION_MAXWORDLENGTH  => 30,
+            self::OPTION_NODUPLICATES   => true,
+            self::OPTION_SPELLCHECK     => false,
+            self::OPTION_DO_NOT_FILTER  => true
+        );
+        return $this->_extend($defaults, $options, false, true);        
+    }
+    
     /**
      * Extends (folds) option values (optionally CASE-INSENSITIVE) into associated default properties
      *
