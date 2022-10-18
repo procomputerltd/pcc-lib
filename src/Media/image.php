@@ -178,7 +178,7 @@ class Image Extends Common {
      * @see /manual/en/function.exif-imagetype.php
      * 
      */
-    public function saveAs($file, $options = null) {
+    public function saveAs(string $file, $options = null) {
 
         if(empty($this->_image) || empty($this->_imageProperties)) {
             // the property that specifies the source image is empty. Specify in constructor or using loadImage(\$image) method
@@ -190,7 +190,7 @@ class Image Extends Common {
             throw new Exception\RuntimeException($msg, MediaConst::E_NOT_LOADED);
         }
         
-        if(!is_string($file) || Types::isBlank($file)) {
+        if(Types::isBlank($file)) {
             $var = Types::getVartype($file);
             // T_PARAMETER_INVALID = "invalid '%s' parameter '%s'";
             $msg = sprintf(MediaConst::T_PARAMETER_INVALID, 'destFile', $var, "expecting destination file");
