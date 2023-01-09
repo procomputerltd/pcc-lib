@@ -8,40 +8,6 @@ class HtmlTableCommon {
     /**
      * The flag that indicates values shall be escaped using htmlentities()
      */
-    const HTMLTABLE_ESCAPE = 0x100;
-
-    /**
-     * The flag that indicates headers, labels and titles shall be escaped using htmlentities()
-     */
-    const HTMLTABLE_ESCAPE_HEADER = 0x200;
-
-    /**
-     * The flag that indicates array keys shall be used as column headers.
-     */
-    const HTMLTABLE_USE_KEYS_AS_COLUMN_HEADERS = 0x400;
-
-    /**
-     * The flag that indicates array keys shall be used as column headers.
-     */
-    const HTMLTABLE_USE_KEYS_AS_ROW_LABLES = 0x800;
-
-    /**
-     * The default element name of checkbox elements.
-     * @var string
-     */
-    const HTMLTABLE_CHECKBOX_MULTIPLE = 'chkMultiSelect';
-
-    /**
-     * The tag that indicates an array element is a row header.
-     * @var string
-     */
-    const HTMLTABLE_ROW_HEADER = '__row_header__';
-
-    /**
-     * The tag that indicates an array element is a row separator.
-     * @var string
-     */
-    const HTMLTABLE_ROW_SEPARATOR = '__row_separator__';
 
     /**
      * Element value.
@@ -76,7 +42,7 @@ class HtmlTableCommon {
      * @param mixed $values     (optional)
      * @param array $attributes (optional)
      * 
-     * @return HtmlRow|HtmlCol Return the row or column object.
+     * @return HtmlTableCommon Return the row or column object.
      */
     public function add($values = null, array $attributes = []) {
         $isTableRow = ($this instanceof HtmlTableRow);
