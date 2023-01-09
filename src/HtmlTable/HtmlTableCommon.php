@@ -109,16 +109,15 @@ class HtmlTableCommon {
      *
      * @return string
      */
-    public function render($options = null) {
-        $aOptions = (null === $options) ? [] : (array)$options;
+    public function render(array $options = []) {
         $children = [];
         foreach($this->_children as $obj) {
             $children[] = $obj->render($options);
         }
         $html = implode("\n    ", $children);
-        if(isset($aOptions['tag'])) {
-            $attr = $this->_buildAttribs($aOptions['attributes'] ?? $this->_attributes);
-            $html = "<{$aOptions['tag']}{$attr}>\n" . $html . "</{$aOptions['tag']}>";
+        if(isset($options['tag'])) {
+            $attr = $this->_buildAttribs($options['attributes'] ?? $this->_attributes);
+            $html = "<{$options['tag']}{$attr}>\n" . $html . "</{$options['tag']}>";
         }
         return $html;
     }
@@ -152,6 +151,7 @@ class HtmlTableCommon {
     /**
      * Converts special characters to HTML entities
      * @param string|array $value
+     * @return string|array
      */
     protected function _escape($value) {
         if(is_array($value)) {
@@ -161,5 +161,29 @@ class HtmlTableCommon {
             return htmlspecialchars($value);
         }
         return $value;
+    }
+    
+    /**
+     * Converts undetermined value to an array.
+     * @param string|array $mixed
+     * @return array
+     */
+    protected function _toArray($mixed) {
+        if(is_array($mixed)) {
+            return $mixed;
+        }
+        if(is_object($mixed)) {
+            if(method_exists($mixed, 'getArrayCopy')) {
+                return $mixed->getArrayCopy();
+            }
+            if($mixed instanceof \Traversable) {
+                $return = [];
+                foreach($mixed as $k => $v) {
+                    $return[$k] = $v;
+                }
+                return $return;
+            }
+        }
+        return is_scalar($mixed) ? ([is_bool($mixed) ? ($mixed ? 'true' : 'false') : (string)$mixed]) : [gettype($mixed)];
     }
 }
