@@ -13,10 +13,9 @@ class HtmlTableRow extends HtmlTableCommon {
      *
      * @return string
      */
-    public function render($options = null) {
-        $aOptions = (null === $options) ? [] : (array)$options;
-        $aOptions['tag'] = 'tr';
-        $return = parent::render($aOptions);
+    public function render(array $options = []) {
+        $options['tag'] = 'tr';
+        $return = parent::render($options);
         return $return;
     }
     

@@ -16,8 +16,9 @@ class HtmlTable extends HtmlTableCommon {
      * @return string Returns the rendered HTML table.
      */
     public function render(array $options = []) {
-        if(isset($options['rows'])) {
-            return $this->_render($options);
+        $lcOptions = array_change_key_case($options);
+        if(isset($lcOptions['rows'])) {
+            return $this->_render($lcOptions);
         }
         $options['tag'] = 'table';
         $return = parent::render($options);
@@ -28,8 +29,7 @@ class HtmlTable extends HtmlTableCommon {
      * Render an HTML table from an array or Traversable specified in 'rows' 
      * option with optional header specified in 'header' option.
      *
-     * @param array $options (optional) Render options. The HTML table is rendered 
-     *                                  from 'rows' option.
+     * @param array $options (optional) Render options. NOTE: the HTML table is rendered from 'rows' option.
      *
      * @return string Returns the rendered HTML table.
      */
@@ -55,20 +55,21 @@ class HtmlTable extends HtmlTableCommon {
                 $header = array_pad($header, $colCount, '-');
             }
             $headerRow = $this->add();
-            $attr = isset($options['headerAttributes']) ? $this->_toArray($options['headerAttributes']) : [];
+            $attr = isset($options['headerattributes']) ? $this->_toArray($options['headerattributes']) : [];
             foreach($header as $label) {
                 $headerRow->add($label, $attr);
             }
         }
-
+        
+        $noEscape = $options['noescape'] ?? false;
         $attr = isset($options['attributes']) ? $this->_toArray($options['attributes']) : [];
         foreach($rows as $key => $values) {
             $row = $this->add();
             foreach($values as $value) {
-                $row->add(htmlspecialchars($value), $attr);
+                $row->add($noEscape ? $value : $this->_escape($value), $attr);
             }
         }
-        unset($options['rows'], $options['header']);
+        unset($options['rows'], $options['header'], $options['noescape']);
         $options['tag'] = 'table';
         $return = parent::render($options);
         return $return;

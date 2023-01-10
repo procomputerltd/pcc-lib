@@ -6,10 +6,6 @@ namespace Procomputer\Pcclib\HtmlTable;
 class HtmlTableCommon {
 
     /**
-     * The flag that indicates values shall be escaped using htmlentities()
-     */
-
-    /**
      * Element value.
      * @var string
      */
@@ -50,7 +46,7 @@ class HtmlTableCommon {
             $obj = $this->_children[] = $isTableRow ? new HtmlTableCol($attributes, '') : new HtmlTableRow($attributes, '');
         }
         else {
-            foreach((array)$values as $value) {
+            foreach($this->_toArray($values) as $value) {
                 $obj = $this->_children[] = $isTableRow ? new HtmlTableCol($attributes, $value) : new HtmlTableRow($attributes, $value);
             }
         }
@@ -63,7 +59,7 @@ class HtmlTableCommon {
      * @param mixed  $value
      * @return $this
      */
-    public function setAttribute($name, $value) {
+    public function setAttribute(string $name, $value) {
         $this->_attributes[$name] = $value;
         return $this;
     }
@@ -81,9 +77,10 @@ class HtmlTableCommon {
             $children[] = $obj->render($options);
         }
         $html = implode("\n    ", $children);
-        if(isset($options['tag'])) {
-            $attr = $this->_buildAttribs($options['attributes'] ?? $this->_attributes);
-            $html = "<{$options['tag']}{$attr}>\n" . $html . "</{$options['tag']}>";
+        $lcOptions = array_change_key_case($options);
+        if(isset($lcOptions['tag'])) {
+            $attr = $this->_buildAttribs($lcOptions['attributes'] ?? $this->_attributes);
+            $html = "<{$lcOptions['tag']}{$attr}>\n" . $html . "</{$lcOptions['tag']}>";
         }
         return $html;
     }
@@ -116,17 +113,13 @@ class HtmlTableCommon {
     
     /**
      * Converts special characters to HTML entities
-     * @param string|array $value
+     * @param string|array|Traversable $value
      * @return string|array
      */
     protected function _escape($value) {
-        if(is_array($value)) {
-            return array_map('htmlspecialchars', $value);        
-        }
-        if(is_string($value)) {
-            return htmlspecialchars($value);
-        }
-        return $value;
+        $isArray = (is_array($value) || $value instanceof \Traversable);
+        $escaped = array_map('htmlspecialchars', $this->_toArray($value));        
+        return $isArray ? $escaped : reset($escaped);
     }
     
     /**
