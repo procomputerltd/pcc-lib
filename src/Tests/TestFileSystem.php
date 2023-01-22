@@ -19,7 +19,7 @@ use Procomputer\Pcclib\Error;
 use Procomputer\Pcclib\FileSystem;
 use Procomputer\Pcclib\PhpErrorHandler;
 
-class TestFilesystem extends TestCommon {
+class TestFileSystem extends TestCommon {
 
     /**
      * The name of this test class.
