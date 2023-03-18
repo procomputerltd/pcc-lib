@@ -40,7 +40,7 @@ class HtmlTableCommon {
      * 
      * @return HtmlTableCommon Return the row or column object.
      */
-    public function add($values = null, array $attributes = []) {
+    public function add(mixed $values = null, array $attributes = []) {
         $isTableRow = ($this instanceof HtmlTableRow);
         if(null === $values) {
             $obj = $this->_children[] = $isTableRow ? new HtmlTableCol($attributes, '') : new HtmlTableRow($attributes, '');
@@ -59,7 +59,7 @@ class HtmlTableCommon {
      * @param mixed  $value
      * @return $this
      */
-    public function setAttribute(string $name, $value) {
+    public function setAttribute(string $name, string $value) {
         $this->_attributes[$name] = $value;
         return $this;
     }
@@ -79,8 +79,11 @@ class HtmlTableCommon {
         $html = implode("\n    ", $children);
         $lcOptions = array_change_key_case($options);
         if(isset($lcOptions['tag'])) {
-            $attr = $this->_buildAttribs($lcOptions['attributes'] ?? $this->_attributes);
-            $html = "<{$lcOptions['tag']}{$attr}>\n" . $html . "</{$lcOptions['tag']}>";
+            $attributes = $this->_attributes;
+            if($this instanceof HtmlTable && isset($lcOptions['attributes']) && is_array($lcOptions['attributes'])) {
+                $attributes = array_merge($attributes, $lcOptions['attributes']);
+            }
+            $html = "<{$lcOptions['tag']}{$this->_buildAttribs($attributes)}>\n" . $html . "</{$lcOptions['tag']}>";
         }
         return $html;
     }
@@ -116,7 +119,7 @@ class HtmlTableCommon {
      * @param string|array|Traversable $value
      * @return string|array
      */
-    protected function _escape($value) {
+    protected function _escape(mixed $value) {
         $isArray = (is_array($value) || $value instanceof \Traversable);
         $escaped = array_map('htmlspecialchars', $this->_toArray($value));        
         return $isArray ? $escaped : reset($escaped);
@@ -127,7 +130,7 @@ class HtmlTableCommon {
      * @param string|array $mixed
      * @return array
      */
-    protected function _toArray($mixed) {
+    protected function _toArray(mixed $mixed) {
         if(is_array($mixed)) {
             return $mixed;
         }
