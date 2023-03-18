@@ -1,6 +1,12 @@
 <?php
-/**
- */
+/*
+Copyright (C) 2018 Pro Computer James R. Steel
+
+This program is distributed WITHOUT ANY WARRANTY; without 
+even the implied warranty of MERCHANTABILITY or FITNESS FOR 
+A PARTICULAR PURPOSE. See the GNU General Public License 
+for more details.
+*/
 namespace Procomputer\Pcclib\HtmlTable;
 
 class HtmlTableCommon {
@@ -25,10 +31,10 @@ class HtmlTableCommon {
 
     /**
      * Ctor
-     * @param array $attributes (optional)
-     * @param mixed $innerHtml  (optional)
+     * @param array  $attributes (optional)
+     * @param string $innerHtml  (optional)
      */
-    public function __construct(array $attributes = [], $innerHtml = '') {
+    public function __construct(array $attributes = [], string $innerHtml = '') {
         $this->_attributes = $attributes;
         $this->_innerHtml = $innerHtml;
     }
@@ -55,8 +61,8 @@ class HtmlTableCommon {
     
     /**
      * Sets an HTML element attribute.
-     * @param string $name
-     * @param mixed  $value
+     * @param string $name  Attribute name.
+     * @param string $value Attribute value.
      * @return $this
      */
     public function setAttribute(string $name, string $value) {
