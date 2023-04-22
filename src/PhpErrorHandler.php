@@ -55,7 +55,7 @@ class PhpErrorHandler {
      */
     public function call(callable $callable) {
         $eData = $this->_initError();
-        set_error_handler(function ($eType, $eMsg, $eFile, $eLine) use($eData) { 
+        $errorHandler = set_error_handler(function ($eType, $eMsg, $eFile, $eLine) use($eData) { 
             $eData->isError = true;
             $eData->type = $eType;
             $eData->msg = $eMsg;
@@ -72,6 +72,9 @@ class PhpErrorHandler {
             $eData->file = $exc->getFile();
             $eData->line = $exc->getLine();
             $eData->trace = $exc->getTrace();
+        }
+        finally {
+            set_error_handler($errorHandler);
         }
         $this->lastErrorObj = $eData;
         $this->lastError = $eData->msg;

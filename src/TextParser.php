@@ -328,34 +328,34 @@ class TextParser implements \Iterator {
     }
 
     /**
-     * Methods implements from Iterator interface (Core.php)
-     * @return int
-     */
-    public function rewind() {
-        $this->_index = 0;
-    }
-    /**
      * @return mixed
      */
-    public function current() {
+    public function current(): mixed {
         return $this->_matches[$this->_index];
     }
     /**
      * @return int
      */
-    public function key() {
+    public function key(): mixed {
         return $this->_index;
     }
     /**
      * @return int
      */
-    public function next() {
+    public function next(): void {
         ++$this->_index;
+    }
+    /**
+     * Methods implements from Iterator interface (Core.php)
+     * @return int
+     */
+    public function rewind(): void {
+        $this->_index = 0;
     }
     /**
      * @return boolean
      */
-    public function valid() {
+    public function valid(): bool {
         return isset($this->_matches[$this->_index]);
     }
 }
