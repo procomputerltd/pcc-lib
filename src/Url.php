@@ -2,12 +2,12 @@
 /*
 Copyright (C) 2018 Pro Computer James R. Steel
 
-This program is distributed WITHOUT ANY WARRANTY; without 
-even the implied warranty of MERCHANTABILITY or FITNESS FOR 
-A PARTICULAR PURPOSE. See the GNU General Public License 
+This program is distributed WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR
+A PARTICULAR PURPOSE. See the GNU General Public License
 for more details.
 */
-/* 
+/*
     Created on  : Jan 01, 2016, 12:00:00 PM
     Organization: Pro Computer
     Author      : James R. Steel
@@ -602,7 +602,7 @@ class Url {
     protected function _parseScheme($scheme) {
         return $scheme;
     }
-    
+
     /**
      * Returns one of the following:
      *   Port number     The value in the 'port' parameter if valid or the default port for the 'scheme' parameter.

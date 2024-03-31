@@ -2,9 +2,9 @@
 /*
 Copyright (C) 2018 Pro Computer James R. Steel
 
-This program is distributed WITHOUT ANY WARRANTY; without 
-even the implied warranty of MERCHANTABILITY or FITNESS FOR 
-A PARTICULAR PURPOSE. See the GNU General Public License 
+This program is distributed WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR
+A PARTICULAR PURPOSE. See the GNU General Public License
 for more details.
 */
 namespace Procomputer\Pcclib\HtmlTable;
@@ -19,13 +19,13 @@ class HtmlTableCommon {
 
     /**
      * Element attributes.
-     * @var array 
+     * @var array
      */
     protected $_attributes = [];
 
     /**
      * Element children elements.
-     * @var array 
+     * @var array
      */
     protected $_children = [];
 
@@ -38,16 +38,23 @@ class HtmlTableCommon {
         $this->_attributes = $attributes;
         $this->_innerHtml = $innerHtml;
     }
-    
+
     /**
      * Add a table row or column(s)
      * @param mixed $values     (optional)
      * @param array $attributes (optional)
-     * 
-     * @return HtmlTableCommon Return the row or column object.
+     *
+     * @return HtmlRow|HtmlCol Return the row or column object.
      */
-    public function add(mixed $values = null, array $attributes = []) {
-        $isTableRow = ($this instanceof HtmlTableRow);
+    public function add($values = null, array $attributes = []) {
+        if($this instanceof HtmlTableCol) {
+            throw new \RuntimeException("error: an attempt is made to add children to HtmlTableCol column object. HtmlTableCol column objects have no children.");
+        }
+        if($values && $this instanceof HtmlTable) {
+            $row = $this->_children[] = new HtmlTableRow();
+            return $row->add($values, $attributes);
+        }
+        $isTableRow = ($this instanceof HtmlTableRow /* else HtmlTableCol, HtmlTable */);
         if(null === $values) {
             $obj = $this->_children[] = $isTableRow ? new HtmlTableCol($attributes, '') : new HtmlTableRow($attributes, '');
         }
@@ -58,7 +65,7 @@ class HtmlTableCommon {
         }
         return $obj;
     }
-    
+
     /**
      * Sets an HTML element attribute.
      * @param string $name  Attribute name.
@@ -69,7 +76,7 @@ class HtmlTableCommon {
         $this->_attributes[$name] = $value;
         return $this;
     }
-    
+
     /**
      * Render an HTML element.
      *
@@ -93,7 +100,7 @@ class HtmlTableCommon {
         }
         return $html;
     }
-    
+
     /**
      * Clears elements, values.
      * @return $this
@@ -103,7 +110,7 @@ class HtmlTableCommon {
         $this->_children = [];
         return $this;
     }
-    
+
     /**
      * Builds HTML element attribute declarations.
      * @param array $attr
@@ -119,7 +126,7 @@ class HtmlTableCommon {
 
         return empty($return) ? '' : (' ' . implode(' ', $return));
     }
-    
+
     /**
      * Converts special characters to HTML entities
      * @param string|array|Traversable $value
@@ -127,10 +134,10 @@ class HtmlTableCommon {
      */
     protected function _escape(mixed $value) {
         $isArray = (is_array($value) || $value instanceof \Traversable);
-        $escaped = array_map('htmlspecialchars', $this->_toArray($value));        
+        $escaped = array_map('htmlspecialchars', $this->_toArray($value));
         return $isArray ? $escaped : reset($escaped);
     }
-    
+
     /**
      * Converts undetermined value to an array.
      * @param string|array $mixed

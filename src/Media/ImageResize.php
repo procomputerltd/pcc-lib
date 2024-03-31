@@ -3,12 +3,12 @@
 /*
 Copyright (C) 2018 Pro Computer James R. Steel
 
-This program is distributed WITHOUT ANY WARRANTY; without 
-even the implied warranty of MERCHANTABILITY or FITNESS FOR 
-A PARTICULAR PURPOSE. See the GNU General Public License 
+This program is distributed WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR
+A PARTICULAR PURPOSE. See the GNU General Public License
 for more details.
 */
-/* 
+/*
     Created on  : Jan 01, 2016, 12:00:00 PM
     Organization: Pro Computer
     Author      : James R. Steel
@@ -19,7 +19,7 @@ namespace Procomputer\Pcclib\Media;
 use Procomputer\Pcclib\Types;
 
 class ImageResize {
-    
+
     /**
      * Sizes and aligns image dimensions and returns an array of new image dimensions.
      *
@@ -39,7 +39,7 @@ class ImageResize {
      * [srcY] => Source Y coordinate
      * [srcW] => Source Width
      * [srcH] => Source Height</pre>
-     * 
+     *
      * @throws Exception\InvalidArgumentException
      */
     public function __invoke($sourceWidth = null, $sourceHeight = null, $destWidth = null, $destHeight = null, $sizing = null, $alignment = null) {
@@ -48,7 +48,7 @@ class ImageResize {
         }
         return $this;
     }
-    
+
     /**
      * Sizes and aligns image dimensions and returns an array of new image dimensions.
      *
@@ -68,11 +68,11 @@ class ImageResize {
      * [srcY] => Source Y coordinate
      * [srcW] => Source Width
      * [srcH] => Source Height</pre>
-     * 
+     *
      * @throws Exception\InvalidArgumentException
      */
     public function resize($sourceWidth, $sourceHeight, $destWidth = null, $destHeight = null, $sizing = null, $alignment = null) {
-        
+
         /**
          * Validate the source image dimensions are > 0.
          */
@@ -85,7 +85,7 @@ class ImageResize {
         /**
          * Resolve and validate the destination dimensions. If the dimensions
          * are null set to -1 indicating proportional dimensions.
-         * 
+         *
          */
         if(is_null($destWidth)) {
             $dstW = -1;
@@ -118,7 +118,7 @@ class ImageResize {
         if(isset($errParam)) {
             // E_INVALID_SIZE_PARAM
             //    invalid size parameter
-            // T_PARAMETER_INVALID   
+            // T_PARAMETER_INVALID
             //    invalid '%s' parameter '%s'
             $msg = sprintf(MediaConst::T_PARAMETER_INVALID, $errParam, Types::getVartype($$errParam))
                 . ": expecting positive integer or null or -1 when auto-sizing is desired.";
@@ -131,7 +131,7 @@ class ImageResize {
            to source image dimensions.
          */
         if(-1 == $dstW && -1 == $dstH) {
-            // Dimensions unspecified, automatic. Source, dest dimensions identical. 
+            // Dimensions unspecified, automatic. Source, dest dimensions identical.
             // No sizing nor alignment needed.
             // Developer may be simply adjusting interlace, quality and/or image type like jpg to png.
             $dstW = $srcW;
@@ -166,7 +166,7 @@ class ImageResize {
                 }
             }
         }
-            
+
         return [
             "dstX" => $dstX, // Destination X coordinate
             "dstY" => $dstY, // Destination Y coordinate
@@ -176,22 +176,22 @@ class ImageResize {
             "srcY" => $srcY, // Source Y coordinate.
             "srcW" => $srcW, // Source Width
             "srcH" => $srcH  // Source Height
-            ];  
+            ];
     }
 
     /**
-     * 
+     *
      * @param int  $sizing A 'SIZE_*' constant
-     * 
+     *
      * @param int  $destWidth       Destination image width.
-     * @param int  $destHeight      Destination image height. 
+     * @param int  $destHeight      Destination image height.
      * @param int  $sourceWidth     Source image width.
-     * @param int  $sourceHeight    Source image height. 
-     * 
+     * @param int  $sourceHeight    Source image height.
+     *
      * @throws Exception\InvalidArgumentException
      */
     public function size($sizing, $destWidth, $destHeight, $sourceWidth, $sourceHeight) {
-        
+
         $res = $this->_resolveDimensions($destWidth, $destHeight);
         if(is_array($res)) {
             list($dstW, $dstH) = $res;
@@ -203,7 +203,7 @@ class ImageResize {
         if(! is_array($res)) {
             throw new Exception\InvalidArgumentException($res, MediaConst::E_IMAGE_SIZE_INVALID);
         }
-        
+
         $diffX = $dstW - $srcW;
         $diffY = $dstH - $srcH;
         switch($sizing) {
@@ -259,25 +259,25 @@ class ImageResize {
             $msg = sprintf(MediaConst::T_PARAMETER_INVALID, "sizing", Types::getVartype($sizing));
             throw new Exception\InvalidArgumentException($msg, MediaConst::E_INVALID_SIZE_PARAM);
         }
-        return [    
+        return [
             $dstW,
             $dstH,
             $srcW,
             $srcH
-            ];  
+            ];
     }
-    
+
     /**
      * Aligns a rectangle (image) inside another rectangle.
      * @param int $align A 'ALIGN_*' constant.
      * @param int  $destWidth       Destination image width.
-     * @param int  $destHeight      Destination image height. 
+     * @param int  $destHeight      Destination image height.
      * @param int  $sourceWidth     Source image width.
-     * @param int  $sourceHeight    Source image height. 
+     * @param int  $sourceHeight    Source image height.
      * @return array Returns an 2-element array: [X,Y] offsets.
      */
     public function align($align, $destWidth, $destHeight, $sourceWidth, $sourceHeight) {
-        
+
         $res = $this->_resolveDimensions($destWidth, $destHeight);
         if(is_array($res)) {
             list($dstW, $dstH) = $res;
@@ -289,7 +289,7 @@ class ImageResize {
         if(! is_array($res)) {
             throw new Exception\InvalidArgumentException($res, MediaConst::E_IMAGE_SIZE_INVALID);
         }
-        
+
         $diffX = $dstW - $srcW;
         $diffY = $dstH - $srcH;
         $x = ($diffX < 1) ? 0 : $diffX ;
@@ -304,7 +304,7 @@ class ImageResize {
                 if($y) {
                     $y /= 2;
                 }
-                break;    
+                break;
             case MediaConst::ALIGN_TOPRIGHT:
                 $y = 0;
                 break;
@@ -327,12 +327,12 @@ class ImageResize {
             }
         }
         return [
-            $x, 
+            $x,
             $y,
-            $srcX, 
+            $srcX,
             $srcY];
     }
-    
+
     /**
      * Resolves/validates x,y integers
      * @param mixed $x
@@ -343,12 +343,12 @@ class ImageResize {
         if(Types::isInteger($x) && Types::isInteger($y)) {
             return [intval($x), intval($y)];
         }
-        // E_IMAGE_SIZE_INVALID 
+        // E_IMAGE_SIZE_INVALID
         //    invalid image dimensions
         // T_IMAGE_SIZE_INVALID
         //    invalid image width(%s) and/or height(%s) parameters
         $orNeg = $allowNeg ? ' or negative' : '';
-        return sprintf(MediaConst::T_IMAGE_SIZE_INVALID, Types::getVartype($x), Types::getVartype($y)) 
+        return sprintf(MediaConst::T_IMAGE_SIZE_INVALID, Types::getVartype($x), Types::getVartype($y))
             . ": expecting non-zero positive{$orNeg} integer values";
     }
 }

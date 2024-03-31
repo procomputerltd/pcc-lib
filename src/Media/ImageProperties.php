@@ -3,19 +3,17 @@
 /*
 Copyright (C) 2018 Pro Computer James R. Steel
 
-This program is distributed WITHOUT ANY WARRANTY; without 
-even the implied warranty of MERCHANTABILITY or FITNESS FOR 
-A PARTICULAR PURPOSE. See the GNU General Public License 
+This program is distributed WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR
+A PARTICULAR PURPOSE. See the GNU General Public License
 for more details.
 */
 namespace Procomputer\Pcclib\Media;
 
 use Procomputer\Pcclib\Types;
 use Procomputer\Pcclib\PhpErrorHandler;
-use Procomputer\Pcclib\FileSystem;
-use Procomputer\Pcclib\Error;
 
-/* 
+/*
     Created on  : Jan 01, 2016, 12:00:00 PM
     Organization: Pro Computer
     Author      : James R. Steel
@@ -27,7 +25,7 @@ class ImageProperties {
      * This class can be invoked as a function e.g. ImageProperties($file);
      *
      * @param string  $file  Path of file for which to get image properties.
-     * @param boolean $throw (optional) Throw an exception when getimagesize() function fails, otherwise 
+     * @param boolean $throw (optional) Throw an exception when getimagesize() function fails, otherwise
      *                                  return the GD or other error in the 'error' key of the returned array.
      *
      * @return array     Returns an array of image file properties (shown above).
@@ -54,7 +52,7 @@ class ImageProperties {
      *  [info]              = Extra information extracted using getimagesize().</pre>
      *
      * @param string  $file  Path of file for which to get image properties.
-     * @param boolean $throw (optional) Throw an exception when getimagesize() function fails, otherwise 
+     * @param boolean $throw (optional) Throw an exception when getimagesize() function fails, otherwise
      *                                  return the GD or other error in the 'error' key of the returned array.
      *
      * @return array     Returns an array of image file properties (shown above).

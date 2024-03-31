@@ -66,16 +66,16 @@ class System {
      *
      * @var array
      */
-    protected static $_url_parts_keys = array("scheme", "host", "port", "user",
-        "pass", "path", "query", "fragment");
+    protected static $_url_parts_keys = ["scheme", "host", "port", "user",
+        "pass", "path", "query", "fragment"];
 
     /**
      * URL scheme names and associated default port numbers.
      *
      * @var array
      */
-    protected static $_scheme_ports = array('http' => 80, 'https' => 443, 'ftp' => 21,
-        'imap' => 143, 'imaps' => 993, 'pop3' => 110, 'pop3s' => 995);
+    protected static $_scheme_ports = ['http' => 80, 'https' => 443, 'ftp' => 21,
+        'imap' => 143, 'imaps' => 993, 'pop3' => 110, 'pop3s' => 995];
 
     /**
      * @return boolean   Returns TRUE when the OS is MS.
@@ -95,7 +95,7 @@ class System {
         if(is_null(self::$_https)) {
             self::$_https = false;
 
-            $vars = array("HTTPS", "HTTP_X_FORWARDED_SERVER", "SCRIPT_URI", "HTTP_HOST");
+            $vars = ["HTTPS", "HTTP_X_FORWARDED_SERVER", "SCRIPT_URI", "HTTP_HOST"];
             foreach($vars as $key => $name) {
                 $value = self::getServerVar($name);
                 if(null !== $value) {
@@ -142,8 +142,7 @@ class System {
           ORIG_PATH_TRANSLATED  	N/A                     C:\Inetpub\wwwroot\php.php
           PATH_TRANSLATED	        /var/www/html/php.php   C:\Inetpub\wwwroot
          */
-        return self::getFirstValidServerValue(array("SCRIPT_FILENAME", "ORIG_PATH_TRANSLATED",
-                "PATH_TRANSLATED"));
+        return self::getFirstValidServerValue(["SCRIPT_FILENAME", "ORIG_PATH_TRANSLATED", "PATH_TRANSLATED"]);
     }
 
     /**
@@ -161,7 +160,7 @@ class System {
      * @example /phpMyAdmin/phpinfo.php
      */
     public static function getScriptVirtualPath() {
-        return self::getFirstValidServerValue(array("SCRIPT_NAME", "ORIG_PATH_INFO", "PATH_INFO", "PHP_SELF"));
+        return self::getFirstValidServerValue(["SCRIPT_NAME", "ORIG_PATH_INFO", "PATH_INFO", "PHP_SELF"]);
     }
 
     /**
@@ -170,7 +169,7 @@ class System {
      * @example /var/www/html -or- D:/INETPUB/091
      */
     public static function getServerAbsPath() {
-        $path = self::getFirstValidServerValue(array("DOCUMENT_ROOT"));
+        $path = self::getFirstValidServerValue(["DOCUMENT_ROOT"]);
         if(strlen($path)) {
             return $path;
         }
@@ -262,7 +261,7 @@ class System {
     public static function getServerHost() {
         if(is_null(self::$_svrHost)) {
             self::$_svrHost = "";
-            $svr_keys = array("HTTP_X_FORWARDED_HOST", "HTTP_HOST");
+            $svr_keys = ["HTTP_X_FORWARDED_HOST", "HTTP_HOST"];
             foreach($svr_keys as $key) {
                 $h = self::getServerVar($key);
                 if(null !== $h && strlen($h = trim($h))) {
@@ -485,7 +484,7 @@ class System {
     public static function unEscape($mixed) {
         if(is_array($mixed)) {
             // Call unEscape recursively for array variables.
-            $mixed = array_map(array(__CLASS__, __FUNCTION__), $mixed);
+            $mixed = array_map([__CLASS__, __FUNCTION__], $mixed);
             return $mixed;
         }
         return (strpos($mixed, '\\\'') !== false || strpos($mixed, '\\\\') !== false || strpos($mixed, '\\"') !== false) ? stripslashes($mixed) : $mixed;
@@ -737,12 +736,12 @@ class System {
      * @return array Returns an array of zero or more name=>value argument pairs.
      */
     public static function urlGetArgs($url) {
-        $args = array();
+        $args = [];
         if(is_null($url)) {
             return $args;
         }
         if(!is_string($url)) {
-            return array($url => "");
+            return [$url => ""];
         }
         $url = trim($url);
         if(!strlen($url)) {
@@ -820,7 +819,7 @@ class System {
      * @return mixed Returns element script string or an array ($return_array=true).
      */
     public static function urlBuildArgList($args, $form_elements = true, $return_array = false) {
-        $result = array();
+        $result = [];
         if(!Types::isBlank($args)) {
             foreach($args as $key => $val) {
                 if($form_elements) {
@@ -870,7 +869,7 @@ class System {
             $parts = parse_url(self::urlComplete($uri));
             if(false === $parts || !is_array($parts)) {
                 $valid = false;
-                $parts = array();
+                $parts = [];
             }
             else {
                 $valid = true;
@@ -878,7 +877,7 @@ class System {
         }
         else {
             $valid = false;
-            $parts = array();
+            $parts = [];
         }
         // Fill in missing parts with a blank string.
         foreach(self::$_url_parts_keys as $key) {
@@ -907,13 +906,13 @@ class System {
      */
     public static function urlExpandParts($parts, $default_parts = null) {
         // Convert keys to same case; lower case.
-        $parts = is_array($parts) ? array_change_key_case($parts) : array();
+        $parts = is_array($parts) ? array_change_key_case($parts) : [];
 
         // Fill in missing url parts with values from '$default_parts' or assign blank
         // string to missing or null parts.
         // Convert keys to same case; lower case.
         $default_parts = (is_array($default_parts) && !empty($default_parts)) ?
-            array_change_key_case($default_parts) : array();
+            array_change_key_case($default_parts) : [];
         foreach(self::$_url_parts_keys as $key) {
             if(!isset($parts[$key]) || Types::isBlank($parts[$key])) {
                 $parts[$key] = (isset($default_parts[$key]) && !empty($default_parts[$key])) ? $default_parts[$key] : "";

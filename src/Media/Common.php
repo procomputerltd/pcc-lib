@@ -35,7 +35,7 @@ class Common {
      * @param int       $srcWidth   $srcWidth and $srcHeight specify the dimensions of the section of the image to resize. Default is entire image.
      * @param int       $srcHeight  (see $srcWidth)
      * @param int       $srcX       $srcX and $srcY specify the top-left coordinates of the section of the image to resize. Default is 0,0 top-left corner.
-     * @param int       $srcY       (see $srcX)  
+     * @param int       $srcY       (see $srcX)
      * @return resource Returns the resized GD Image resource
      * @throws Exception\RuntimeException
      */

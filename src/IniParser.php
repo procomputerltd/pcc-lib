@@ -2,12 +2,12 @@
 /*
 Copyright (C) 2018 Pro Computer James R. Steel
 
-This program is distributed WITHOUT ANY WARRANTY; without 
-even the implied warranty of MERCHANTABILITY or FITNESS FOR 
-A PARTICULAR PURPOSE. See the GNU General Public License 
+This program is distributed WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR
+A PARTICULAR PURPOSE. See the GNU General Public License
 for more details.
 */
-/* 
+/*
     Created on  : Nov 18, 2018, 9:11:55 PM
     Organization: Pro Computer
     Author      : James R. Steel

@@ -2,12 +2,12 @@
 /*
 Copyright (C) 2018 Pro Computer James R. Steel
 
-This program is distributed WITHOUT ANY WARRANTY; without 
-even the implied warranty of MERCHANTABILITY or FITNESS FOR 
-A PARTICULAR PURPOSE. See the GNU General Public License 
+This program is distributed WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR
+A PARTICULAR PURPOSE. See the GNU General Public License
 for more details.
 */
-/* 
+/*
     Created on  : Jan 01, 2016, 12:00:00 PM
     Organization: Pro Computer
     Author      : James R. Steel
@@ -53,7 +53,7 @@ class Constant {
     const E_PARSENUMBER_SYNTAX = 0x0242; // the parameter that specifies the number is not a number, invalid syntax.
     const E_PARSENUMBER_NAN = 0x0243; // the parameter that specifies the number is not-a-number (NAN).
     const E_PARSENUMBER_INF = 0x0244; // the parameter that specifies the number is not a number, infinite (INF).
-    
+
     /**
      * Text strings constants
      */
@@ -77,7 +77,7 @@ class Constant {
     const T_FILE_CLOSE = "cannot close file '%s': %s"; // @var string
     const T_FILE_TOO_LARGE = "the size of the file exceeds the specified maximum of '%s'"; // @var string
     const T_CREATE_UNIQUE_MAXED = "cannot create unique filename after %s attempts in the specified path '%s'"; // @var string
-    
+
     const T_NO_NUMBER_PARSED = "no number was parsed - use method 'parseNumber(\$number)' or specify a number in the constructor."; // @var string
-    
+
 }

@@ -3,12 +3,12 @@
 /*
 Copyright (C) 2018 Pro Computer James R. Steel
 
-This program is distributed WITHOUT ANY WARRANTY; without 
-even the implied warranty of MERCHANTABILITY or FITNESS FOR 
-A PARTICULAR PURPOSE. See the GNU General Public License 
+This program is distributed WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR
+A PARTICULAR PURPOSE. See the GNU General Public License
 for more details.
 */
-/* 
+/*
     Created on  : Jan 01, 2016, 12:00:00 PM
     Organization: Pro Computer
     Author      : James R. Steel
@@ -45,11 +45,11 @@ class Image Extends Common {
      * Switch: what to do when a non-critical error occurrs. (NOTE: critical errors always throw exception.)
      *  TRUE  - throw exception
      *  FALSE - return an Error object
-     *         
+     *
      * @var boolean
      */
     private static $_throwErrors = true;
-    
+
     /**
      * PHP 'IMAGETYPE_*' image type specifier.
      * @var int
@@ -59,7 +59,7 @@ class Image Extends Common {
 
     /**
      * The following are options supported by the 'options' parameter of 'saveAs()' method.
-     * 
+     *
      * alignment         int              A 'MediaConst::ALIGN_*' constant that specifies how the image is aligned in the space.
      * basename          string           Descriptive name for 'image' above when 'image' is a temporary file like 'pccAn1e.tmp'
      * height            int              Image width. Specify -1 or null for proportional.
@@ -107,11 +107,11 @@ class Image Extends Common {
 
     /**
      * Loads an image file or GD resource.
-     * 
+     *
      * @param string|resource  $image Image file.
-     * 
+     *
      * @return $this
-     * 
+     *
      * @throws Exception\InvalidArgumentException
      */
     public function loadImage($image) {
@@ -135,15 +135,15 @@ class Image Extends Common {
         if(isset($code)) {
             throw new Exception\InvalidArgumentException($errorMsg, $code);
         }
-        
+
         $this->_imageProperties = $properties;
         $this->_image = $this->_imageProperties['filename'];
-        
+
         return $this;
     }
 
     /**
-     * Sets the throw errors setting that determines whether an exception is thrown on severe 
+     * Sets the throw errors setting that determines whether an exception is thrown on severe
      * errors or an Error object is returned on severe errors.
      * @param boolean $throw (optional) Sets the throw errors setting. If null the setting is not changed.
      * @return boolean Returns the previous throw errors setting..
@@ -155,7 +155,7 @@ class Image Extends Common {
         }
         return $return;
     }
-    
+
     /**
      * Returns currently loaded image properties.
      * @return array|null
@@ -174,11 +174,11 @@ class Image Extends Common {
      *
      * @throws Exception\RuntimeException
      * @throws Exception\InvalidArgumentException
-     * 
+     *
      * @see /manual/en/function.exif-imagetype.php
-     * 
+     *
      */
-    public function saveAs(string $file, $options = null) {
+    public function saveAs(string $file, array $options = []) {
 
         if(empty($this->_image) || empty($this->_imageProperties)) {
             // the property that specifies the source image is empty. Specify in constructor or using loadImage(\$image) method
@@ -189,7 +189,7 @@ class Image Extends Common {
             }
             throw new Exception\RuntimeException($msg, MediaConst::E_NOT_LOADED);
         }
-        
+
         if(Types::isBlank($file)) {
             $var = Types::getVartype($file);
             // T_PARAMETER_INVALID = "invalid '%s' parameter '%s'";
@@ -201,7 +201,7 @@ class Image Extends Common {
         }
 
         $destFile = trim($file);
-        
+
         $lcTemp = array_change_key_case(Arrays::toArray($options, []));
         $lcDefaults = $this->_defaultOptions;
         $imageOptions = Arrays::extend($lcDefaults, $lcTemp);
@@ -215,7 +215,7 @@ class Image Extends Common {
         $fromPhpType = $imageProperties['type'];
 
         $optionFlags = (int)$imageOptions['options'];
-        
+
         // If data in the file is not type IMAGETYPE_PCC_GD2 save the file as-is if 'type' is the
         // same as the original type and no size, quality nor alignment parameters are specified.
         if(file_exists($destFile)) {
@@ -233,7 +233,7 @@ class Image Extends Common {
                 [error]              = Error message.
                 [throw]              = Indicates the error is a critical error that should be thrown.</pre>
              */
-            if(! is_file($destFile)) { 
+            if(! is_file($destFile)) {
                 $code = MediaConst::E_BAD_DEST_FILE_PARAM;
                 $var = Types::getVartype($destFile);
                 //  the value specified in the destination file parameter is not a file
@@ -343,7 +343,7 @@ class Image Extends Common {
             }
             throw new Exception\RuntimeException($msg, $code);
         }
-        
+
         $dstImg = $phpErrorHandler->call(function()use($imgdata){
             return imagecreatetruecolor($imgdata['dstW'], $imgdata['dstH']);
         });
@@ -375,7 +375,7 @@ class Image Extends Common {
         }
 
         $haveOverlayFile = ! Types::isBlank($imageOptions['overlayfile']);
-        
+
         if($haveOverlayFile && ($optionFlags & MediaConst::IMG_OPTION_OVERLAY_BEFORE_FILTER)) {
             $this->_overlay($dstImg, $imageOptions);
             $overlay = true;
@@ -419,9 +419,9 @@ class Image Extends Common {
 
         // _invoke($imgResource, $destFile, $phpType, $quality, $interlace = 0, $throw = true)
         $exporter = new ExportImage();
-        $returnFile = $exporter->export($dstImg, $destPath, $phpType, $imageOptions['quality'], 
+        $returnFile = $exporter->export($dstImg, $destPath, $phpType, $imageOptions['quality'],
             $imageOptions['interlace'], self::$_throwErrors);
-        
+
         return $returnFile;
     }
 
@@ -434,7 +434,7 @@ class Image Extends Common {
     protected function _overlay($dstImg, array $options) {
         $overlay = new Overlay();
         $res = $overlay->overlay(
-            $dstImg, 
+            $dstImg,
             $options['overlayfile'],
             $options['overlaymergepct'],
             (int)$options['options'],
@@ -448,10 +448,12 @@ class Image Extends Common {
     /**
      * Determines whether the new, saved image will be identical to the source, that is, no property option
      * would cause the new image to be different therefore requiring sizing, zooming, filtereing etc.
-     * @return boolean
+     * @param array $destImageProperties
+     * @param array $sourceImageProperties
+     * @return bool
      */
-    protected function _identicalProperties($destImageProperties, $sourceImageProperties) {
-        /* getProperties() returns an array similar to:
+    protected function _identicalProperties(array $destImageProperties, array $sourceImageProperties) : bool {
+        /* Expected properties. These are described in class ImageProperties.
             [filename]           = File path.
             [file_ext]           = File extension without dot.
             [width]              = Image pixel width.
@@ -466,7 +468,7 @@ class Image Extends Common {
             [throw]              = Indicates the error is a critical error that should be thrown.</pre>
          */
         $options = $sourceImageProperties['options'];
-        
+
         $width = $sourceImageProperties['width'];
         if(-1 !== $width && $width !== $destImageProperties['width']) {
             return false;
@@ -563,7 +565,7 @@ class Image Extends Common {
         }
         return ($options & MediaConst::IMG_OPTION_OVERWRITE) ? $file : false;
     }
-    
+
     /**
      * Returns the list of available options and their default values.
      * @return array

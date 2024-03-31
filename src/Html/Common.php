@@ -2,12 +2,12 @@
 /*
 Copyright (C) 2018 Pro Computer James R. Steel
 
-This program is distributed WITHOUT ANY WARRANTY; without 
-even the implied warranty of MERCHANTABILITY or FITNESS FOR 
-A PARTICULAR PURPOSE. See the GNU General Public License 
+This program is distributed WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR
+A PARTICULAR PURPOSE. See the GNU General Public License
 for more details.
 */
-/* 
+/*
     Created on  : Jan 01, 2016, 12:00:00 PM
     Organization: Pro Computer
     Author      : James R. Steel
@@ -19,7 +19,7 @@ namespace Procomputer\Pcclib\Html;
  * Common class extended by other Html classes.
  */
 class Common {
-    
+
     /**
      * Build HTML element attribute declarations.
      * @param array $attributes
@@ -33,7 +33,7 @@ class Common {
                 if(!strlen($trimmed)) {
                     continue;
                 }
-                $attr[] = $trimmed . '="' . str_replace('"', '&quot;', $v) . '"';
+                $attr[] = $trimmed . '="' . str_replace('"', '&quot;', $v ?? '') . '"';
             }
             if(!empty($attr)) {
                 return ' ' . implode(' ', $attr);

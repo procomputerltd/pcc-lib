@@ -5,7 +5,7 @@
 namespace Procomputer\Pcclib\HtmlTable;
 
 class HtmlTableRow extends HtmlTableCommon {
-  
+
     /**
      * Render an HTML row element.
      *
@@ -18,5 +18,5 @@ class HtmlTableRow extends HtmlTableCommon {
         $return = parent::render($options);
         return $return;
     }
-    
+
 }

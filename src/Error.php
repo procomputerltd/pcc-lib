@@ -2,12 +2,12 @@
 /*
 Copyright (C) 2018 Pro Computer James R. Steel
 
-This program is distributed WITHOUT ANY WARRANTY; without 
-even the implied warranty of MERCHANTABILITY or FITNESS FOR 
-A PARTICULAR PURPOSE. See the GNU General Public License 
+This program is distributed WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR
+A PARTICULAR PURPOSE. See the GNU General Public License
 for more details.
 */
-/* 
+/*
     Created on  : Jan 01, 2016, 12:00:00 PM
     Organization: Pro Computer
     Author      : James R. Steel
@@ -64,7 +64,7 @@ class Error {
      * The error/message context e.g. 'database adapter connection'
      * @var string
      */
-    protected $_context = '';
+    protected $_errorContext = '';
 
     /**
      * The message.
@@ -135,7 +135,7 @@ class Error {
         else {
             $this->setMsg((string)$error);
         }
-        
+
         if(null !== $code) {
             $this->setCode($code);
         }
@@ -143,11 +143,11 @@ class Error {
             $this->setSqlState($sqlState);
         }
         $this->setLevel($level);
-        
+
         if(is_string($this->_file) && strlen($f = trim($this->_file))) {
             $this->setContext('file: ' . basename($f));
         }
-        
+
     }
 
     /**
@@ -157,7 +157,7 @@ class Error {
     public function __toString() {
         return (empty($this->_code) ? '' : "Error {$this->_code}: ") . $this->_msg;
     }
-    
+
     /**
      * Returns the error source e.g. 'PHP Data Objects (PDO)'
      *
@@ -227,7 +227,7 @@ class Error {
      * @return string
      */
     public function getContext() {
-        return $this->_context ;
+        return $this->_errorContext ;
     }
 
     /**
@@ -238,7 +238,7 @@ class Error {
      * @return Error
      */
     public function setContext($value) {
-        $this->_context = (string)$value ;
+        $this->_errorContext = (string)$value ;
         return $this ;
     }
 

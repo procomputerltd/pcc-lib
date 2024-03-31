@@ -2,12 +2,12 @@
 /*
 Copyright (C) 2018 Pro Computer James R. Steel
 
-This program is distributed WITHOUT ANY WARRANTY; without 
-even the implied warranty of MERCHANTABILITY or FITNESS FOR 
-A PARTICULAR PURPOSE. See the GNU General Public License 
+This program is distributed WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR
+A PARTICULAR PURPOSE. See the GNU General Public License
 for more details.
 */
-/* 
+/*
     Created on  : Jan 01, 2016, 12:00:00 PM
     Organization: Pro Computer
     Author      : James R. Steel
@@ -28,9 +28,9 @@ class CsvFile extends Common {
      * @var boolean
      */
     private static $_throwErrors = true;
-    
+
     /**
-     * Sets the throw errors setting that determines whether an exception is thrown on severe 
+     * Sets the throw errors setting that determines whether an exception is thrown on severe
      * errors or an Error object is returned on severe errors.
      * @param boolean $throw (optional) Sets the throw errors setting. If null the setting is not changed.
      * @return boolean Returns the previous throw errors setting.
@@ -42,18 +42,19 @@ class CsvFile extends Common {
         }
         return $return;
     }
-    
+
     /**
      * Writes data to a CSV file.
      * @param string             $file      Basename or full path of file to write.
-     * @param array|\Traversable $data      Data to be written to the file.
+     * @param array|\ArrayObject $data      Data to be written to the file.
      * @param function           $callBack  (optional) Function called before each fputcsv() call. prototype function($dataRow, $fileHandle, $lineCount)
      * @param string             $delimiter (optional) CSV delimiter character.
      * @param string             $enclosure (optional) CSV enclosure character.
-     * @param string             $escape    (optional) CSV escape character. 
+     * @param string             $escape    (optional) CSV escape character.
      * @return string|boolean Returns the file path else FALSE on error.
      */
-    public function write($file, $data, $callBack = null, $delimiter = ",", $enclosure = '"', $escape = "\\") {
+    public function write(string $file, array|\ArrayObject $data, callable $callBack = null, string $delimiter = ",",
+            string $enclosure = '"', string $escape = "\\") {
         $handle = $this->_open($file, false);
         if(is_array($handle)) {
             list($msg, $code) = $handle;
@@ -91,13 +92,13 @@ class CsvFile extends Common {
         $phpErrorHandler->call(function()use($handle){return fclose($handle);});
         return $lineCount;
     }
-    
+
     /**
      * Reads a CSV file into an array.
      * @param string             $file      File from which to read CSV data.
      * @param string             $delimiter (optional) CSV delimiter character.
      * @param string             $enclosure (optional) CSV enclosure character.
-     * @param string             $escape    (optional) CSV escape character. 
+     * @param string             $escape    (optional) CSV escape character.
      * @return array|boolean Returns the CSV data array else FALSE on error.
      */
     public function read($file, $delimiter = ",", $enclosure = '"', $escape = "\\") {
@@ -116,7 +117,7 @@ class CsvFile extends Common {
                 break;
             }
             $line = $phpErrorHandler->call(function()use($handle, $delimiter, $enclosure, $escape){
-                return fgetcsv($handle, 99999, $delimiter, $enclosure, $escape);                
+                return fgetcsv($handle, 99999, $delimiter, $enclosure, $escape);
             });
             if(! $line) {
                 $msg = $phpErrorHandler->getErrorMsg('', '');
@@ -133,7 +134,7 @@ class CsvFile extends Common {
         $phpErrorHandler->call(function()use($handle){return fclose($handle);});
         return $data;
     }
-    
+
     /**
      * Opens a file for read or write.
      * @param string  $file File to open.
@@ -160,7 +161,7 @@ class CsvFile extends Common {
                     if(! file_exists($path) || ! is_file($path)) {
                         $msg = "file not found";
                         $code = Constant::E_FILE_NOT_FOUND;
-                    } 
+                    }
                     else {
                         $msg = "not a valid file path";
                     }
@@ -200,7 +201,7 @@ class CsvFile extends Common {
             $msg = "cannot open file: {$msg}: {$var}";
             return [$msg, $code];
         }
-        
+
         $phpErrorHandler = new PhpErrorHandler();
         $handle = $phpErrorHandler->call(function()use($path, $mode){return fopen($path, $mode);});
         if(! $handle) {

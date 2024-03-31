@@ -3,16 +3,16 @@
 /*
 Copyright (C) 2018 Pro Computer James R. Steel
 
-This program is distributed WITHOUT ANY WARRANTY; without 
-even the implied warranty of MERCHANTABILITY or FITNESS FOR 
-A PARTICULAR PURPOSE. See the GNU General Public License 
+This program is distributed WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR
+A PARTICULAR PURPOSE. See the GNU General Public License
 for more details.
 */
-/* 
+/*
     Created on  : Dec 9, 2018, 8:46:02 AM
     Organization: Pro Computer
     Author      : James R. Steel
-    Description : PHP Software by Pro Computer 
+    Description : PHP Software by Pro Computer
 */
 namespace Procomputer\Pcclib\Media;
 
@@ -35,7 +35,7 @@ class ExportImage {
      */
     public function __construct() {
     }
-    
+
     /**
      * Saves an image resource to a file.
      *
@@ -52,7 +52,7 @@ class ExportImage {
     public function __invoke($imgResource, $destFile, $phpType, $quality, $interlace = 0, $throw = true) {
         return $this->export($imgResource, $destFile, $phpType, $quality, $interlace, $throw);
     }
-    
+
     /**
      * Saves an image resource to a file.
      *
@@ -208,7 +208,7 @@ class ExportImage {
         }
         return false;
     }
-    
+
     /**
      * Validates the 'quality' value for rendering a JPEG image.
      *

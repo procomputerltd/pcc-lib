@@ -5,11 +5,11 @@
 namespace Procomputer\Pcclib\HtmlTable;
 
 class HtmlTable extends HtmlTableCommon {
-    
+
     /**
      * Render an HTML table.
      *
-     * @param array $options (optional) Render options. The HTML table is rendered 
+     * @param array $options (optional) Render options. The HTML table is rendered
      *                                  from 'rows' option if it exists else from
      *                                  rows and columns added using 'add()' method.
      *
@@ -24,9 +24,9 @@ class HtmlTable extends HtmlTableCommon {
         $return = parent::render($options);
         return $return;
     }
-    
+
     /**
-     * Render an HTML table from an array or Traversable specified in 'rows' 
+     * Render an HTML table from an array or Traversable specified in 'rows'
      * option with optional header specified in 'header' option.
      *
      * @param array $options (optional) Render options. NOTE: the HTML table is rendered from 'rows' option.
@@ -60,7 +60,7 @@ class HtmlTable extends HtmlTableCommon {
                 $headerRow->add($label, $attr);
             }
         }
-        
+
         $noEscape = $options['noescape'] ?? false;
         $attr = isset($options['attributes']) ? $this->_toArray($options['attributes']) : [];
         foreach($rows as $key => $values) {

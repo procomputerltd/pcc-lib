@@ -2,12 +2,12 @@
 /*
 Copyright (C) 2018 Pro Computer James R. Steel
 
-This program is distributed WITHOUT ANY WARRANTY; without 
-even the implied warranty of MERCHANTABILITY or FITNESS FOR 
-A PARTICULAR PURPOSE. See the GNU General Public License 
+This program is distributed WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR
+A PARTICULAR PURPOSE. See the GNU General Public License
 for more details.
 */
-/* 
+/*
     Created on  : Jan 01, 2016, 12:00:00 PM
     Organization: Pro Computer
     Author      : James R. Steel
@@ -20,7 +20,7 @@ namespace Procomputer\Pcclib;
  */
 class FileInformation {
 
-    protected $_map = [    
+    protected $_map = [
         'htm' => 'text/html',
         'html'=> 'text/html',
         'asp' => 'text/html',
@@ -34,7 +34,7 @@ class FileInformation {
         'pdf' => 'application/pdf',
         'php' => 'application/x-httpd-php',
         'zip' => 'application/zip',
-        
+
         'ez' => 'application/andrew-inset',
         'aw' => 'application/applixware',
         'atom' => 'application/atom+xml',
@@ -794,7 +794,7 @@ class FileInformation {
         'smv' => 'video/x-smv',
         'ice' => 'x-conference/x-cooltalk',
     ];
-    
+
     /**
      * Attempts to determine a file's MIME type.
      *
@@ -822,10 +822,10 @@ class FileInformation {
         }
 
         $phpErrorHandler = new PhpErrorHandler();
-        
+
         if(empty($mime)) {
             if(function_exists('finfo_open')) {
-                
+
                 $finfo = $phpErrorHandler->call(function(){
                     return finfo_open(FILEINFO_MIME_TYPE);
                 });
@@ -875,7 +875,7 @@ class FileInformation {
         $lcExt = strtolower(trim($ext));
         return isset($this->_map[$lcExt]) ? $this->_map[$lcExt] : false;
     }
-    
+
     /**
      * Returns a description for the specified file extension.
      * @param string $fileExtension The file extension for which to find description.

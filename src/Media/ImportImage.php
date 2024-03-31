@@ -3,16 +3,16 @@
 /*
 Copyright (C) 2018 Pro Computer James R. Steel
 
-This program is distributed WITHOUT ANY WARRANTY; without 
-even the implied warranty of MERCHANTABILITY or FITNESS FOR 
-A PARTICULAR PURPOSE. See the GNU General Public License 
+This program is distributed WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR
+A PARTICULAR PURPOSE. See the GNU General Public License
 for more details.
 */
-/* 
+/*
     Created on  : Dec 9, 2018, 8:46:02 AM
     Organization: Pro Computer
     Author      : James R. Steel
-    Description : PHP Software by Pro Computer 
+    Description : PHP Software by Pro Computer
 */
 namespace Procomputer\Pcclib\Media;
 
@@ -36,7 +36,7 @@ class ImportImage {
      */
     public function __construct() {
     }
-    
+
     /**
      * Saves an image resource to a file.
      *
@@ -53,7 +53,7 @@ class ImportImage {
     public function __invoke($imgResource, $destFile, $phpType, $quality, $interlace = 0, $throw = true) {
         return $this->import($imgResource, $destFile, $phpType, $quality, $interlace, $throw);
     }
-    
+
     /**
      * Creates an image resource from a file.
      *
@@ -145,9 +145,9 @@ class ImportImage {
             }
             return false;
         }
-        
+
         imagealphablending($srcImg, true);
-        imagecolortransparent($srcImg, imagecolorallocate($srcImg, 255, 255, 255));            
+        imagecolortransparent($srcImg, imagecolorallocate($srcImg, 255, 255, 255));
         return $srcImg;
     }
 }

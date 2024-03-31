@@ -332,7 +332,7 @@ class FileSystem extends Common {
      *
      * @param string  $directory Directory to create.
      * @param int     $mode      (optional) File mode. Default 0x1ff = 0777 octal
-     * @param boolean $recursive (optional) Creates dirs recursively.
+     * @param boolean $recursive (optional) Creates parent directories in the path if they don't exist.
      *
      * @return boolean
      */

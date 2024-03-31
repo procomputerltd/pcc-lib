@@ -2,12 +2,12 @@
 /*
 Copyright (C) 2018 Pro Computer James R. Steel
 
-This program is distributed WITHOUT ANY WARRANTY; without 
-even the implied warranty of MERCHANTABILITY or FITNESS FOR 
-A PARTICULAR PURPOSE. See the GNU General Public License 
+This program is distributed WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR
+A PARTICULAR PURPOSE. See the GNU General Public License
 for more details.
 */
-/* 
+/*
     Created on  : Jan 01, 2016, 12:00:00 PM
     Organization: Pro Computer
     Author      : James R. Steel
@@ -26,12 +26,26 @@ class Submit {
     /**
      * Create an HTML submit element.
      * @param string  $name   Element name.
+     * @param string  $label  (optional) Element label value.
+     * @param array   $attr   (optional) Element attributes.
+     * @return string|self
+     */
+    public function __invoke(string $name = null, string $label = '', array $attr = []) {
+        if(null === $name) {
+            return $this;
+        }
+        return $this->render($name, $label, $attr);
+    }
+    
+    /**
+     * Create an HTML submit element.
+     * @param string  $name   Element name.
      * @param string  $label  Element label value.
      * @param array   $attr   (optional) Element attributes.
      * @return string
      */
-    public function __invoke($name, $label = '', array $attr = []) {
-        if(!is_string($name) || Types::isBlank($name)) {
+    public function render(string $name, string $label = '', array $attr = []): string {
+        if(Types::isBlank($name)) {
             $var = Types::getVartype($name);
             throw new Exception\InvalidArgumentException("invalid 'name' parameter '{$var}': expecting an element name");
         }
@@ -44,5 +58,4 @@ class Submit {
         $element = new Element();
         return $element('input', '', $attr, false);
     }
-
 }

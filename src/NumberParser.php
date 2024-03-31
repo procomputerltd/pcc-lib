@@ -2,12 +2,12 @@
 /*
 Copyright (C) 2018 Pro Computer James R. Steel
 
-This program is distributed WITHOUT ANY WARRANTY; without 
-even the implied warranty of MERCHANTABILITY or FITNESS FOR 
-A PARTICULAR PURPOSE. See the GNU General Public License 
+This program is distributed WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR
+A PARTICULAR PURPOSE. See the GNU General Public License
 for more details.
 */
-/* 
+/*
     Created on  : Jan 01, 2016, 12:00:00 PM
     Organization: Pro Computer
     Author      : James R. Steel
@@ -20,14 +20,14 @@ use Procomputer\Pcclib\Error;
 /**
  * Parses and validates numerics including numeric strings, hexadecimals, exponential representations
  * Then use 'formatNumber()' to format number strings from the parsed number.
- * 
+ *
  * Examples:
- * 
+ *
  *    // Try passing an invalid number PHP reports as 'INF', infinite number, unrepresentable.
- *    // Floating point maximum is platform-dependant. Largest in Windblows <float.h> header 
+ *    // Floating point maximum is platform-dependant. Largest in Windblows <float.h> header
  *    // is 1.7976931348623158e+308, smallest 2.2250738585072014e-308
- *    $parser = new NumberParser(); 
- *    $number = '1.99e+309'; 
+ *    $parser = new NumberParser();
+ *    $number = '1.99e+309';
  *    if(! $parser($number)) {
  *      throw new \Exception("{$number} is not a valid number!", -1);
  *    }
@@ -35,7 +35,7 @@ use Procomputer\Pcclib\Error;
  *      $stringNumberRounded = $parser->formatNumber(4, '.', ',');
  *    }
  *    // Pass a valid number.
- *    $number = '999999999999999999999999999.99999999'; 
+ *    $number = '999999999999999999999999999.99999999';
  *    if(! $parser($number)) {
  *      throw new \Exception("{$number} is not a valid number!", -1);
  *    }
@@ -82,9 +82,9 @@ class NumberParser extends Common {
      * @var boolean
      */
     private static $_throwErrors = true;
-    
+
     /**
-     * Sets the throw errors setting that determines whether an exception is thrown on severe 
+     * Sets the throw errors setting that determines whether an exception is thrown on severe
      * errors or an Error object is returned on severe errors.
      * @param boolean $throw (optional) Sets the throw errors setting. If null the setting is not changed.
      * @return boolean Returns the previous throw errors setting..
@@ -96,7 +96,7 @@ class NumberParser extends Common {
         }
         return $return;
     }
-    
+
     /**
      * Constructor
      *
@@ -113,9 +113,9 @@ class NumberParser extends Common {
 
     /**
      * __invoke is called when the class is used like a function.
-     * 
-     * Example: $parser = new NumberParser(); 
-     *          $parser($number); 
+     *
+     * Example: $parser = new NumberParser();
+     *          $parser($number);
      *          $isValid = $parser->isValidNumber()
      *          if(! $isValid) {
      *
@@ -134,7 +134,7 @@ class NumberParser extends Common {
      * @return mixed Returns the property value.
      * @throws Exception\RuntimeException
      */
-    public function __get($name) { 
+    public function __get($name) {
         $var = '_' . $name;
         if(isset($this->$var)) {
             return $this->$var;
@@ -142,7 +142,7 @@ class NumberParser extends Common {
         $var = Types::getVartype($name);
         throw new Exception\RuntimeException("property '{$var}' not found");
     }
-    
+
     /**
      * Parses a number and stores the parts in this object's properties.
      *
@@ -153,11 +153,11 @@ class NumberParser extends Common {
     public function parseNumber($number) {
         $this->_number = $this->_fraction = "";
         $this->_valid = $this->_sign = $this->_integer = false;
-       
+
         /**
          * Parameter validation - accept only integer, float, string
          */
-        if(! is_scalar($number) || is_bool($number) || is_string($number) && ! strlen(trim($number))) { 
+        if(! is_scalar($number) || is_bool($number) || is_string($number) && ! strlen(trim($number))) {
             // T_PARAMETER_INVALID = "invalid '%s' parameter '%s'"; // @var string
             $msg = sprintf(Constant::T_PARAMETER_INVALID, 'number', Types::getVartype($number))
                 . ": expecting a number or numeric string";
@@ -166,7 +166,7 @@ class NumberParser extends Common {
             }
             return new Error($msg, Constant::E_PARAMETER_INVALID);
         }
-        
+
         $num = $number; // Preserve the original number variable.
         if(is_int($num)) {
             // It's a PHP integer or int|float zero.
@@ -177,7 +177,7 @@ class NumberParser extends Common {
             }
             return true;
         }
-        
+
         if(is_string($num) && preg_match('/^[0-9\\.]+[eE][\\+\\-]?[0-9\\.]+$/', $num)) {
             $num = floatval($num);
         }
@@ -213,7 +213,7 @@ class NumberParser extends Common {
             $this->_valid = true;
             return true;
         }
-        
+
         $num = trim($num);
         $len = strlen($num);
         if(! $len) {
@@ -221,13 +221,13 @@ class NumberParser extends Common {
             $this->_lastErrorCode = Constant::E_PARSENUMBER_EMPTY;
             return false;
         }
-        
+
         // All zeroes?
         if($len === strspn($num, "0")) {
             $this->_valid = $this->_integer = true;
             return true;
         }
-        
+
         $fraction = "";
         $sign = $integer = false;
         // Check for hexadecimal notation.
@@ -237,7 +237,7 @@ class NumberParser extends Common {
             $this->_valid = $this->_integer = true;
             return true;
         }
-        
+
         // String must now be only digits, decimal point(s) and sign(s)
         // Remove leading sign(s).
         $l = strspn($num, "-+");
@@ -266,7 +266,7 @@ class NumberParser extends Common {
             $this->_lastErrorCode = Constant::E_PARSENUMBER_SYNTAX;
             return false;
         }
-        
+
         if(false !== strpos($num, '.')) {
             $arr = explode('.', $num);
             if(count($arr) > 2) {
@@ -275,13 +275,13 @@ class NumberParser extends Common {
                 return false;
             }
             $fraction = array_pop($arr);
-            
+
             $num = array_pop($arr);
             $len = strlen($num);
             if(! $len || $len == strspn($num, '0')) {
                 $num = "";
             }
-            
+
             $len = strlen($fraction);
             if(! $len || $len == strspn($fraction, '0')) {
                 $fraction = "";
@@ -292,7 +292,7 @@ class NumberParser extends Common {
             $num = $fraction = "";
             $integer = true;
         }
-        
+
         $this->_number = $num;
         $this->_fraction = $fraction;
         $this->_integer = $integer;
@@ -318,7 +318,7 @@ class NumberParser extends Common {
             }
             return new Error(Constant::T_NO_NUMBER_PARSED, Constant::E_NO_NUMBER_PARSED);
         }
-        
+
         /**
          * Parameter validation.
          */
@@ -365,7 +365,7 @@ class NumberParser extends Common {
             }
             return new Error($msg, Constant::E_PARAMETER_INVALID);
         }
-        
+
         /**
          * If the number is a float just format
          */
@@ -386,16 +386,16 @@ class NumberParser extends Common {
             }
             return number_format($num, $dec, $decPoint, $thouSep);
         }
-        
+
         $num = $this->_number;
         $frac = $this->_fraction;
         $len = strlen($num);
         $frLen = strlen($frac);
-        
+
         if(!$len && !$frLen) {
             $num = '0';
         }
-        
+
         /**
          * Round to the number of decimals specified, if any.
          */
@@ -414,7 +414,7 @@ class NumberParser extends Common {
             }
             $frLen = strlen($frac);
         }
-                
+
         if($len && null !== $thouSep) {
             $num = $this->_addThouSep($num, $thouSep) ;
         }

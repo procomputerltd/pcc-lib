@@ -2,20 +2,20 @@
 /*
 Copyright (C) 2018 Pro Computer James R. Steel
 
-This program is distributed WITHOUT ANY WARRANTY; without 
-even the implied warranty of MERCHANTABILITY or FITNESS FOR 
-A PARTICULAR PURPOSE. See the GNU General Public License 
+This program is distributed WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR
+A PARTICULAR PURPOSE. See the GNU General Public License
 for more details.
 */
-/* 
+/*
     Created on  : Jan 01, 2016, 12:00:00 PM
     Organization: Pro Computer
     Author      : James R. Steel
     Description : IPTC (International Press Telecommunications Council) image functions
                   Reads/writes IPTC information to/from JPEG images.
-   
+
     @see php.net/manual/en/function.iptcembed.php
-    @see iptc.org/standards/photo-metadata/photo-metadata/  
+    @see iptc.org/standards/photo-metadata/photo-metadata/
 */
 namespace Procomputer\Pcclib\Media;
 
@@ -29,9 +29,9 @@ use Procomputer\Pcclib\PhpErrorHandler;
  * Description : PHP Software by Pro Computer.
  *               IPTC (International Press Telecommunications Council) image functions
  *               Reads/writes IPTC information to/from JPEG images.
- * 
+ *
  * @see php.net/manual/en/function.iptcembed.php
- * @see iptc.org/standards/photo-metadata/photo-metadata/  
+ * @see iptc.org/standards/photo-metadata/photo-metadata/
 */
 class Iptc {
     /**
@@ -40,12 +40,12 @@ class Iptc {
      * @param string $sourceFile JPEG image file in which to embed field.
      * @param string $destFile   Output file path. Can be same as $sourceFile
      * @param array  $fields     IPTC field number=>content pairs
-     * 
+     *
      * @return boolean Returns TRUE if success else FALSE.
-     * 
+     *
      * @throws Exception\InvalidArgumentException
      * @throws Exception\RuntimeException
-     * 
+     *
      * @see php.net/manual/en/function.iptcembed.php
      */
     public function addIPTCField($sourceFile, $destFile, array $fields) {
@@ -120,16 +120,16 @@ class Iptc {
             $msg = $phpErrorHandler->getErrorMsg("fopen() function failed", "cannot open file for writing");
             throw new Exception\RuntimeException($msg, MediaConst::E_IPTC_CANNOT_OPEN);
         }
-        
+
         $res = $phpErrorHandler->call(function()use($handle, $content){ return fwrite($handle, $content); });
         if(! $res) {
             $msg = $phpErrorHandler->getErrorMsg("fwrite() function failed", "cannot write IPTC code to image file");
             $code = MediaConst::E_IPTC_CANNOT_WRITE;
         }
-        
+
         // Close handle, ignore errors.
         $phpErrorHandler->call(function()use($handle){ return fclose($handle); });
-        
+
         if(! $res) {
             throw new Exception\RuntimeException($msg, $code);
         }
@@ -138,15 +138,15 @@ class Iptc {
 
     /**
      * Get IPTC information from a file.
-     * 
+     *
      * @param string  $file         Image file from which to extract IPTC information.
      * @param mixed   $IPTCFields   (optional) An IPTC field number or array of field numbers.
      * @param string  $section      (optional) Section from which to return IPTC information.
-     * 
+     *
      * @return array|boolean  Returns IPTC information array or FALSE if the function failed.
-     * 
+     *
      * @throws Exception\InvalidArgumentException
-     * 
+     *
      * @see php.net/manual/en/function.iptcparse.php
      */
     public function getIPTCField($file, $IPTCFields = null, $section = 'APP13') {
@@ -157,13 +157,13 @@ class Iptc {
 
         // Throw an error if the image file invalid.
         $properties = $this->_getImageProperties($file, true);
-        
+
         $info = $properties['info'];
-        
+
         if(! isset($info[$section])) {
             return false;
         }
-        
+
         $section = $info[$section];
         $phpErrorHandler = new PhpErrorHandler();
         $iptc = $phpErrorHandler->call(function()use($section){ return iptcparse($section); });
@@ -227,7 +227,7 @@ class Iptc {
         }
         return $properties;
     }
-    
+
     /**
      * Create a photo information tag.
      * @param int    $rec

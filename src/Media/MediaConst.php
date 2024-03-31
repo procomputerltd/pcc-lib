@@ -2,12 +2,12 @@
 /*
 Copyright (C) 2018 Pro Computer James R. Steel
 
-This program is distributed WITHOUT ANY WARRANTY; without 
-even the implied warranty of MERCHANTABILITY or FITNESS FOR 
-A PARTICULAR PURPOSE. See the GNU General Public License 
+This program is distributed WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR
+A PARTICULAR PURPOSE. See the GNU General Public License
 for more details.
 */
-/* 
+/*
     Created on  : Jan 01, 2016, 12:00:00 PM
     Organization: Pro Computer
     Author      : James R. Steel
@@ -95,7 +95,7 @@ class MediaConst {
     const E_PHP_FUNCTION_FAILED = 0x0285; // a PHP image function has failed
     const E_PROPERTY_NOT_FOUND = 0x028D; // Class property not found.
     const E_TYPE_MISMATCH = 0x028C; // Type mismatch.
-    
+
     /**
      * Graphics text constants.
      */
@@ -121,5 +121,5 @@ class MediaConst {
     const T_IMAGE_SIZE_INVALID = "invalid image width(%s) and/or height(%s) parameters";
     const T_IPTC_NO_FUNCTION = "cannot embed IPTC code: IPTC functions are not enabled";
     const T_IPTC_INVALID_IPTC_FIELD = "invalid IPTC embedding code '%s'";
-    
+
 }

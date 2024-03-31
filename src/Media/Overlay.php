@@ -2,12 +2,12 @@
 /*
 Copyright (C) 2018 Pro Computer James R. Steel
 
-This program is distributed WITHOUT ANY WARRANTY; without 
-even the implied warranty of MERCHANTABILITY or FITNESS FOR 
-A PARTICULAR PURPOSE. See the GNU General Public License 
+This program is distributed WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR
+A PARTICULAR PURPOSE. See the GNU General Public License
 for more details.
 */
-/* 
+/*
     Created on  : Jan 01, 2016, 12:00:00 PM
     Organization: Pro Computer
     Author      : James R. Steel
@@ -22,14 +22,14 @@ use Procomputer\Pcclib\Types;
  * Overlays an image on another image with optional transparency (merge percentage) for watermarks etc.
  */
 class Overlay extends Common {
-    
+
     /**
      * Constructor
      */
     public function __construct() {
         // Doesn't do anything except...overrides the 'overlay' function so 'overlay()' isn't called on instanciation.
     }
-    
+
     /**
      * Merge an overlay image into the destination image.
      *
@@ -43,14 +43,14 @@ class Overlay extends Common {
      * @return boolean
      * @throws Exception\InvalidArgumentException
      */
-    public function overlay($dstImg, $fileToOverlay, $mergePercentage = null, $overlayOptions = null, $overlayAlign = null, 
+    public function overlay($dstImg, $fileToOverlay, $mergePercentage = null, $overlayOptions = null, $overlayAlign = null,
         $overlayRotate = null, $transparentColor = null) {
         if(empty($fileToOverlay)) {
             // no overlay image specified in the overlay property.
             // Cannot overlay image: no overlay image specified.
             throw new Exception\InvalidArgumentException(MediaConst::T_NO_OVERLAY_IMAGE, MediaConst::E_NO_OVERLAY_IMAGE);
         }
-        
+
         if($this->_isGdResource($fileToOverlay)) {
             $ovImg = $fileToOverlay;
         }
@@ -58,10 +58,10 @@ class Overlay extends Common {
             $importer = new ImportImage();
             $ovImg = $importer->import($fileToOverlay);
         }
-        
+
         $dstWidth = imagesx($dstImg);
         $dstHeight = imagesy($dstImg);
-        
+
         if(null !== $transparentColor) {
 //            if(false === $this->setTransparentColor($ovImg, $transparentColor)) {
 //                // T_OVERLAY_CANNOT_SET_TRANSPARENT = 'cannot set the transparency color.';
@@ -99,7 +99,7 @@ class Overlay extends Common {
             $ovWidth = imagesx($ovImg);
             $ovHeight = imagesy($ovImg);
         }
-        
+
         if($overlayOptions & MediaConst::IMG_OPTION_OVERLAY_REPEAT) {
             $dstImg = $this->_repeat($dstImg, $ovImg);
         }
@@ -121,7 +121,7 @@ class Overlay extends Common {
             if(null !== $mergePct && 100 !== $mergePct) {
                 $this->_colorize($ovImg, $mergePct);
             }
-            
+
             $res = $phpErrorHandler->call(function()use(
                 $dstImg,        // Destination image link resource.
                 $ovImg,         // Source image link resource.
@@ -141,7 +141,7 @@ class Overlay extends Common {
                     $ovHeight // source height.
                     );
             });
-            
+
             if(! $res) {
                 // T_PHP_FUNCTION_FAILED = image function '%s' failed
                 $msg = $phpErrorHandler->getErrorMsg(sprintf(MediaConst::T_PHP_FUNCTION_FAILED, "imagecopy"), "cannot copy overlay image");
@@ -160,9 +160,9 @@ class Overlay extends Common {
      * @param int       $rotateDegrees  # degrees to rotate image.
      * @param int       $dstWidth       (optional) If desired, the dimensions of the rectangle in which the rotated image must fit.
      * @param int       $dstHeight      (optional) ^ ^ ^
-     * 
+     *
      * @return resource  Returns the rotated image or original image if $degrees is ZERO.
-     * 
+     *
      * @throws Exception\InvalidArgumentException
      */
     protected function _rotate($img, $rotateDegrees, $dstWidth = null, $dstHeight = null) {
@@ -227,5 +227,5 @@ class Overlay extends Common {
         // a PHP image function has failed
         throw new Exception\RuntimeException($msg, MediaConst::E_PHP_FUNCTION_FAILED);
     }
-    
+
 }

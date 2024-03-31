@@ -5,7 +5,7 @@
 namespace Procomputer\Pcclib\HtmlTable;
 
 class HtmlTableCol extends HtmlTableCommon {
-    
+
     /**
      * Render an HTML column element.
      *

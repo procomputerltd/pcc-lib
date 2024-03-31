@@ -2,12 +2,12 @@
 /*
 Copyright (C) 2018 Pro Computer James R. Steel
 
-This program is distributed WITHOUT ANY WARRANTY; without 
-even the implied warranty of MERCHANTABILITY or FITNESS FOR 
-A PARTICULAR PURPOSE. See the GNU General Public License 
+This program is distributed WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR
+A PARTICULAR PURPOSE. See the GNU General Public License
 for more details.
 */
-/* 
+/*
     Created on  : Jan 01, 2016, 12:00:00 PM
     Organization: Pro Computer
     Author      : James R. Steel
@@ -175,7 +175,8 @@ class Types {
             // NAN - blank or non-numeric string.
             return false;
         }
-        if(ctype_digit($number) && strlen($number) < 10) {
+        $maxIntLen = strlen((string)PHP_INT_MAX);
+        if(ctype_digit($number) && strlen($number) <= $maxIntLen) {
             // It's a string of digits.
             return true;
         }

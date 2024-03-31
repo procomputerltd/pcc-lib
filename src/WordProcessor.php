@@ -2,12 +2,12 @@
 /*
 Copyright (C) 2018 Pro Computer James R. Steel
 
-This program is distributed WITHOUT ANY WARRANTY; without 
-even the implied warranty of MERCHANTABILITY or FITNESS FOR 
-A PARTICULAR PURPOSE. See the GNU General Public License 
+This program is distributed WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR
+A PARTICULAR PURPOSE. See the GNU General Public License
 for more details.
 */
-/* 
+/*
     Created on  : Jan 01, 2016, 12:00:00 PM
     Organization: Pro Computer
     Author      : James R. Steel
@@ -17,15 +17,15 @@ namespace Procomputer\Pcclib;
 
 class WordProcessor {
 
-    const OPTION_CAPITALIZE    = 'capitalize'; 
-    const OPTION_DELIMITER     = 'delimiter';  
-    const OPTION_LOWERCASE     = 'lowercase'; 
+    const OPTION_CAPITALIZE    = 'capitalize';
+    const OPTION_DELIMITER     = 'delimiter';
+    const OPTION_LOWERCASE     = 'lowercase';
     const OPTION_MAX           = 'max';           // Maximum length of combined words.
-    const OPTION_MAXWORDLENGTH = 'maxwordlength'; 
+    const OPTION_MAXWORDLENGTH = 'maxwordlength';
     const OPTION_NODUPLICATES  = 'noduplicates';
-    const OPTION_SPELLCHECK    = 'spellcheck';  
-    const OPTION_DO_NOT_FILTER = 'nofilterchars';  
-            
+    const OPTION_SPELLCHECK    = 'spellcheck';
+    const OPTION_DO_NOT_FILTER = 'nofilterchars';
+
     // Patterns to replace inch(') and foot(") abbreviations, for example.
     protected $_findReplace = array();
 
@@ -91,7 +91,7 @@ class WordProcessor {
      *
      * @return void
      */
-    public function parse($text, $options = null) {
+    public function parse($text, array $options = []) {
 
         // Init data store.
         $this->setData();
@@ -145,7 +145,7 @@ class WordProcessor {
     public function toArray(array $options = []) {
         return $this->_getArray($this->_data, $this->_extendDefaults($options));
     }
-    
+
     /**
      * Joins words in the data into a string.
      * @param int   $maxLength  Maximum length of result string.
@@ -279,9 +279,9 @@ class WordProcessor {
             self::OPTION_SPELLCHECK     => false,
             self::OPTION_DO_NOT_FILTER  => true
         );
-        return $this->_extend($defaults, $options, false, true);        
+        return $this->_extend($defaults, $options, false, true);
     }
-    
+
     /**
      * Extends (folds) option values (optionally CASE-INSENSITIVE) into associated default properties
      *
