@@ -1,5 +1,5 @@
 <?php
-namespace Procomputer\Laminas\DirectorySynchronizer;
+namespace Procomputer\Pcclib\DirectorySynchronizer;
 
 /* 
  * Copyright (C) 2024 Pro Computer James R. Steel <jim-steel@pccglobal.com>
