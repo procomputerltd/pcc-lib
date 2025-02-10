@@ -1,6 +1,5 @@
 <?php
 namespace Procomputer\Pcclib\DirectorySynchronizer;
-
 /* 
  * Copyright (C) 2024 Pro Computer James R. Steel <jim-steel@pccglobal.com>
  * Pro Computer (pccglobal.com)
@@ -27,11 +26,11 @@ class DirectorySynchronizer {
      * 
      * @param string $directory1
      * @param string $directory2
-     * @param array|string $extensionFilter
+     * @param array|string $extensionPatterns
      * @param array|string $skippedDirectories
      * @return array|bool
      */
-    public function compare(string $directory1, string $directory2, array|string $extensionFilter = ['php'], array|string $skippedDirectories = []) {
+    public function compare(string $directory1, string $directory2, array|string $extensionPatterns = ['php'], array|string $skippedDirectories = []) {
         $fileItems = [];
         $directories = [$directory1, $directory2];
         foreach($directories as $key => $directory) {
@@ -50,7 +49,7 @@ class DirectorySynchronizer {
             // Get the normalized/resolved real file path.
             $realpath = $this->_getDirRealPath($dirTrimmed);
             $directories[$key] = $realpath;
-            $fileItems[] = $this->_scanDirectory($realpath, $key, $extensionFilter, $skippedDirectories);
+            $fileItems[] = $this->_scanDirectory($realpath, $key, $extensionPatterns, $skippedDirectories);
         }
         if(count($fileItems[0]) && count($fileItems[1])) {
             $item0 = reset($fileItems[0]);
@@ -67,29 +66,43 @@ class DirectorySynchronizer {
         return $items;
     }
     
-    private function _getDiff($fileItems, $directories) {
-        $return = [[],[]];
+    private function _getDiff(array $fileItems, array $directories) {
+        $items = [[],[]];
+        $sort = [[],[]];
         for($index = 0; $index < 2; $index++) {
             foreach($fileItems[$index] as $fileItem) {
+                /** @var FileItem $fileItem */
+                /** @var FileItem $fileItem2 */
                 $fileNameHash = $fileItem->filenameHash();
-                if(isset($fileItems[1 - $index][$fileNameHash])) {
-                    if(! isset($return[$fileNameHash])) {
-                        $fileItem2 = $fileItems[1 - $index][$fileNameHash];
+                $altIndex = 1 - $index;
+                if(isset($fileItems[$altIndex][$fileNameHash])) {
+                    if(! isset($items[0][$fileNameHash])) {
+                        $fileItem2 = $fileItems[$altIndex][$fileNameHash];
                         // Compare the file data.
                         if($fileItem->diff($fileItem2)) {
                             // A file1 timestamp greater than file2 means file1 is recenly modified.
                             // Place the most recenly modified file path at index 0.
                             $fileItem->associateItem($fileItem2);
-                            $return[0][$fileNameHash] = $fileItem;
+                            $items[0][$fileNameHash] = $fileItem;
+                            $sort[0][$fileNameHash] = max($fileItem->getTimestamp(), $fileItem2->getTimestamp());
                         }
                     }
                 }
                 else {
-                    $fileItem->setCopyToDirectory($directories[1]);
-                    $return[1][$fileNameHash] = $fileItem;
+                    $fileItem->setCopyToDirectory($directories[$altIndex]);
+                    $items[1][$fileNameHash] = $fileItem;
+                    $sort[1][$fileNameHash] = $fileItem->getTimestamp();
                 }
             }
         }
+        $return = [[],[]];
+        for($index = 0; $index < 2; $index++) {
+            arsort($sort[$index]);
+            foreach($sort[$index] as $hash => $time) {
+                $return[$index][$hash] = $items[$index][$hash];
+            }
+        }
+        
         /*
         foreach($fileItems[1] as $fileItem) {
             $fileNameHash = $fileItem->filenameHash();
@@ -138,14 +151,9 @@ class DirectorySynchronizer {
         return $copied;
     }
 
-    private function _scanDirectory(string $directory, int $index, array|string $extensionFilter = [], array|string $skippedDirectories = []) {
+    private function _scanDirectory(string $directory, int $index, array|string $extensionPatterns = [], array|string $skippedDirectories = []) {
         $items = [];
-        $skippedDirs = [];
-        foreach((array)$skippedDirectories as $key => $dir) {
-            if(is_string($dir) && strlen($dir = trim($dir))) {
-                $skippedDirs[$key] = str_replace('\\', '/', strtolower($dir));
-            }
-        }
+        $skippedDirs = $this->_resolveSkippedDirs($skippedDirectories);
         if(empty($skippedDirs)) {
             $skippedDirs = false;
         }
@@ -163,23 +171,7 @@ class DirectorySynchronizer {
         }
         // Get the normalized/resolved real file path.
         $realpath = $this->_getDirRealPath($dirTrimmed);
-        $filter = [];
-        if(is_string($extensionFilter)) {
-            $extensionFilter = trim($extensionFilter);
-            if(! empty($extensionFilter) && '*' !== $extensionFilter) {
-                $filter = [$extensionFilter];
-            }
-        }
-        else {
-            foreach($extensionFilter as $item) {
-                if(is_string($item)) {
-                    $item = trim($item);
-                    if(strlen($item)) {
-                        $filter[] = $item;
-                    }
-                }
-            }
-        }
+        $filter = $this->_resolveExtensionPatterns($extensionPatterns);
         // Create recursive directory iterator
         $fileIterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($realpath), \RecursiveIteratorIterator::LEAVES_ONLY);
         foreach($fileIterator as $iteratorItem) {
@@ -220,6 +212,46 @@ class DirectorySynchronizer {
     }
 
     /**
+     * 
+     * @param string|array $extensionPatterns
+     * @return array
+     */
+    private function _resolveExtensionPatterns(string|array $extensionPatterns): array {
+        $filter = [];
+        if(is_string($extensionPatterns)) {
+            $extensionPatterns = trim($extensionPatterns);
+            if(! empty($extensionPatterns) && '*' !== $extensionPatterns) {
+                $filter = [$extensionPatterns];
+            }
+        }
+        else {
+            foreach($extensionPatterns as $item) {
+                if(is_string($item)) {
+                    $item = trim($item);
+                    if(strlen($item)) {
+                        if('*' !== $item) {
+                            $filter = [];
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return $filter;
+    }
+    
+    private function _resolveSkippedDirs(array|string $directories) {
+        $dirs = is_array($directories) ? $dirs : [$directories];
+        $return = [];
+        foreach($dirs as $key => $dir) {
+            if(is_string($dir) && strlen($dir = trim($dir))) {
+                $return[$key] = str_replace('\\', '/', strtolower($dir));
+            }
+        }
+        return $return;
+    }
+    
+    /**
      * Attempt to get an absolute (real) path for the given directory.
      * @param string $directory
      * @return string
@@ -251,6 +283,24 @@ class DirectorySynchronizer {
             $path = pathinfo($new, PATHINFO_DIRNAME);
         }
         return $this->normalizeFilePath($path);
+    }
+    
+    public function getRealPath(string $path) {
+        $phpErrorHandler = new PhpErrorHandler();
+        $res = $phpErrorHandler->call(function()use($path){
+            return realpath($path);
+        });
+        if(false === $res) {
+            throw new \RuntimeException("realpath failed: " . $phpErrorHandler->getErrorMsg('unknown error'));
+        }
+        return $res;
+    }
+    
+    public function normalizeFilePath(string $path) {
+        $osSep = DIRECTORY_SEPARATOR;
+        $sep = ('/' === $osSep) ? '\\' : '/';
+        $return = rtrim(str_replace($sep, $osSep, $path), $osSep);
+        return $return;
     }
     
     private function _createFile(string $file) {
@@ -285,21 +335,4 @@ class DirectorySynchronizer {
         return true;
     }
     
-    public function getRealPath(string $path) {
-        $phpErrorHandler = new PhpErrorHandler();
-        $res = $phpErrorHandler->call(function()use($path){
-            return realpath($path);
-        });
-        if(false === $res) {
-            throw new \RuntimeException("realpath failed: " . $phpErrorHandler->getErrorMsg('unknown error'));
-        }
-        return $res;
-    }
-    
-    public function normalizeFilePath(string $path) {
-        $osSep = DIRECTORY_SEPARATOR;
-        $sep = ('/' === $osSep) ? '\\' : '/';
-        $return = rtrim(str_replace($sep, $osSep, $path), $osSep);
-        return $return;
-    }
 }

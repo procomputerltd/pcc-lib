@@ -7,11 +7,11 @@ namespace Procomputer\Pcclib\DirectorySynchronizer;
  * Tacoma Washington USA 253-272-4243
  *
  * This program is distributed WITHOUT ANY WARRANTY; without 
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR 
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License 
  * for more details.
  */
-
+use DateTime;
 use Procomputer\Pcclib\PhpErrorHandler;
 
 class FileItem {
@@ -70,10 +70,12 @@ class FileItem {
      */
     public function synchronize() {
         $phpErrorHandler = new PhpErrorHandler();
-        /** @var FileItem $from */
-        /** @var FileItem $to */
         if($this->associateItem) {
-            if($this->getTimestamp() > $this->associateItem->getTimestamp()) {
+            $ts1 = $this->getTimestamp();
+            $ts2 = $this->associateItem->getTimestamp();
+            $d1 = $this->getDateTime()->format('Y-m-d H:i:s');
+            $d2 = $this->associateItem->getDateTime()->format('Y-m-d H:i:s');
+            if($ts1 > $ts2) {
                 $from = $this->filepath;
                 $to = $this->associateItem->filepath;
             }
@@ -120,6 +122,28 @@ class FileItem {
             return false;
         }
         return true;
+    }
+    
+    /**
+     * 
+     * @return array
+     */
+    public function getAction() {
+        $status = 'writeable';
+        $dir = 'right';
+        if($this->associateItem) {
+            if($this->associateItem->isWriteable()) {
+                $diffTime = $this->associateItem->getTimestamp() - $this->getTimestamp();
+                if($diffTime >= 0) {
+                    $dir = 'left';
+                }
+            }
+            else {
+                $dir = '';
+                $status = 'readonly';
+            }
+        }
+        return (object)['direction' => $dir, 'status' => $status];
     }
     
     public function associateItem(FileItem $fileItem) {
