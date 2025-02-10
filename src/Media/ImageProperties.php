@@ -30,7 +30,7 @@ class ImageProperties {
      *
      * @return array     Returns an array of image file properties (shown above).
      */
-    public function __invoke($file, $throw = true) {
+    public function __invoke(string $file, bool $throw = true) {
         return $this->getImageProperties($file, $throw);
     }
 
@@ -58,7 +58,7 @@ class ImageProperties {
      * @return array     Returns an array of image file properties (shown above).
      *
      */
-    public function getImageProperties($file, $throw = true) {
+    public function getImageProperties(string $file, bool $throw = true) {
         $sourcePath = $errorMsg = "";
         $properties = [];
         $info = [];
@@ -69,7 +69,7 @@ class ImageProperties {
             $code = MediaConst::E_NO_LIBRARY;
             $errorMsg = MediaConst::T_NO_LIBRARY;
         }
-        elseif(! is_string($file) || Types::isBlank($file)) {
+        elseif(Types::isBlank($file)) {
             // invalid source file parameter
             $code = MediaConst::E_BAD_SOURCE_FILE_PARAM;
             // invalid '%s' parameter '%s'
@@ -84,7 +84,8 @@ class ImageProperties {
                 $errorMsg = sprintf(MediaConst::T_FILE_NOT_FOUND, Types::getVartype($file));
             }
             else {
-                if(!filesize($sourcePath)) {
+                $fileSize = filesize($sourcePath);
+                if(! $fileSize) {
                     // the file is empty
                     $code = MediaConst::E_FILE_EMPTY;
                     // file '%s' is empty
@@ -106,6 +107,9 @@ class ImageProperties {
                             $errorMsg .= ': ' . $phpErrorHandler->getErrorMsg('getimagesize() function failed', 'cannot get file image information');
                         }
                     }
+//                    else {
+//                        $interlace = $this->isInterlaced($sourcePath);
+//                    }
                 }
             }
         }
@@ -126,21 +130,43 @@ class ImageProperties {
 
           See: http://us3.php.net/manual/en/function.getimagesize.php
           http://us3.php.net/manual/en/function.image-type-to-mime-type.php
-
          */
-        $res["filename"          ] = $sourcePath;
-        $res["width"             ] = isset($properties[0]) ? floatval($properties[0]) : 0.0;
-        $res["height"            ] = isset($properties[1]) ? floatval($properties[1]) : 0.0;
-        $res["type"              ] = isset($properties[2]) ? intval($properties[2]) : MediaConst::IMAGETYPE_UNKNOWN;
-        $res["file_ext"          ] = ImageType::getImageType($res["type"], true); // File extension without dot.
+        $res["filename"]           = $sourcePath;
+        $res["width"]              = isset($properties[0]) ? floatval($properties[0]) : 0.0;
+        $res["height"]             = isset($properties[1]) ? floatval($properties[1]) : 0.0;
+        $res["type"]               = isset($properties[2]) ? intval($properties[2]) : MediaConst::IMAGETYPE_UNKNOWN;
+        $res["file_ext"]           = ImageType::getImageType($res["type"], true); // File extension without dot.
         $res["htmlSizeAttributes"] = isset($properties[3]) ? $properties[3] : "";
-        $res["mime"              ] = isset($properties["mime"]) ? $properties["mime"] : "";
-        $res["channels"          ] = isset($properties["channels"]) ? intval($properties["channels"]) : "";
-        $res["bits"              ] = isset($properties["bits"]) ? intval($properties["bits"]) : "";
-        $res["errno"             ] = $code;
-        $res["error"             ] = $errorMsg;
-        $res["throw"             ] = $shouldThrow;
-        $res['info'              ] = $info;
+        $res["mime"]               = isset($properties["mime"]) ? $properties["mime"] : "";
+        $res["channels"]           = isset($properties["channels"]) ? intval($properties["channels"]) : "";
+        $res["bits"]               = isset($properties["bits"]) ? intval($properties["bits"]) : "";
+        $res["errno"]              = $code;
+        $res["error"]              = $errorMsg;
+        $res["throw"]              = $shouldThrow;
+        $res['info']               = $info;
         return $res;
+    }
+
+    public function isInterlaced(string $file) {
+        if(! file_exists($file) || ! is_file($file) || filesize($file) < 32) {
+            return false;
+        }
+        $phpErrorHandler = new PhpErrorHandler();
+        $contents = $phpErrorHandler->call(function()use($file){
+            return file_get_contents($file, false, null, 0, 32);
+        });
+        if(false === $contents) {
+            return false;
+        }
+        $hex = [];
+        for($i=0; $i<strlen($contents); $i++) {
+            // Interlaced       ff d8 ff e0 00 10 4a 46 49 46 00 01 01 01 00 60 00 60 00 00 ff fe 00 3c 43 52 45 41 54 4f 52 3a
+            // Non-interlaced   ff d8 ff e0 00 10 4a 46 49 46 00 01 01 01 00 60 00 60 00 00 ff fe 00 3c 43 52 45 41 54 4f 52 3a
+            $hex[] = str_pad(dechex(ord($contents[$i])), 2, '0', STR_PAD_LEFT);
+        }
+        $hex = implode(' ', $hex);
+        $c = $contents[28];
+        $o = ord($c);
+        return $o;
     }
 }

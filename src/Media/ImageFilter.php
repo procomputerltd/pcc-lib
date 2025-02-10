@@ -17,14 +17,11 @@ for more details.
 
 namespace Procomputer\Pcclib\Media;
 
-use Procomputer\Pcclib\Types;
-use Procomputer\Pcclib\Error;
-
 class ImageFilter {
     /**
      *
      */
-    public function applyFilter($imResource, array $imageFilter) {
+    public function applyFilter(\GdImage $imResource, array $imageFilter) {
         foreach($imageFilter as $filterType => $args) {
             /* GD filterType constants. See: php.net/manual/en/function.imagefilter.php
 

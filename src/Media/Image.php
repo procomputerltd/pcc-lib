@@ -83,15 +83,15 @@ class Image Extends Common {
         'imagefilter'       => null,
         'interlace'         => null,
         'options'           => 0,
+        'overlayalign'      => null,
+        'overlayfile'       => null,
+        'overlaymergepct'   => null, // Overlay merge percentage 0-100%. 0 does NOTHING while 100 overlays the file AS-IS; no transparency.
+        'overlayrotate'     => null,
+        'overlaytranscolor' => null,
         'phptype'           => MediaConst::IMAGETYPE_UNKNOWN,
         'quality'           => MediaConst::QUALITY_DEFAULT,
         'sizing'            => MediaConst::SIZE_ZOOM,
-        'width'             => null,
-        'overlayfile'       => null,
-        'overlaymergepct'   => null, // Overlay merge percentage 0-100%. 0 does NOTHING while 100 overlays the file AS-IS; no transparency.
-        'overlayalign'      => null,
-        'overlayrotate'     => null,
-        'overlaytranscolor' => null
+        'width'             => null
         );
 
     /**
@@ -99,7 +99,7 @@ class Image Extends Common {
      *
      * @param string $image (optional) Source image file.
      */
-    public function __construct($image = null) {
+    public function __construct(string $image = null) {
         if(null !== $image) {
             $this->loadImage($image);
         }
@@ -114,8 +114,8 @@ class Image Extends Common {
      *
      * @throws Exception\InvalidArgumentException
      */
-    public function loadImage($image) {
-        if(! is_string($image) || Types::isBlank($image)) {
+    public function loadImage(string $image) {
+        if(Types::isBlank($image)) {
             // invalid '%s' parameter '%s'
             // invalid source file parameter
             $msg = sprintf(MediaConst::T_PARAMETER_INVALID, 'image', Types::getVartype($image));
@@ -170,8 +170,7 @@ class Image Extends Common {
      * @param string $file      Destination filename.
      * @param array  $options   (optional) Property options.
      *
-     * @return boolean|string|Error  Returns saved image file or FALSE on error.
-     *
+     * @return string|Error  Returns saved image file or an Error object when throwErrors() return false;
      * @throws Exception\RuntimeException
      * @throws Exception\InvalidArgumentException
      *
@@ -202,9 +201,9 @@ class Image Extends Common {
 
         $destFile = trim($file);
 
-        $lcTemp = array_change_key_case(Arrays::toArray($options, []));
+        $lcOptions = array_change_key_case(Arrays::toArray($options, []));
         $lcDefaults = $this->_defaultOptions;
-        $imageOptions = Arrays::extend($lcDefaults, $lcTemp);
+        $imageOptions = Arrays::extend($lcDefaults, $lcOptions);
 
         $imageProperties = $this->_imageProperties;
         $imageProperties['options'] = $imageOptions;
@@ -243,9 +242,14 @@ class Image Extends Common {
                 }
                 throw new Exception\InvalidArgumentException($msg, $code);
             }
-            $obj = new ImageProperties();
-            $destProperties = $obj($destFile);
-            $identical = $this->_identicalProperties($destProperties, $imageProperties);
+            $identical = false;
+            if(filesize($destFile)) {
+                $obj = new ImageProperties();
+                try {
+                    $identical = $this->_identicalProperties($obj($destFile), $imageProperties);
+                } catch (\Throwable $exc) {
+                }
+            }
         }
         else {
             $identical = false;
@@ -253,7 +257,7 @@ class Image Extends Common {
         if($identical) {
             if($optionFlags & MediaConst::IMG_OPTION_ADD_FILE_EXTENSION) {
                 // Add a file extension ONLY if the file has no extension.
-                $path = $this->_addImageTypeFileExtension($destFile, $fromPhpType);
+                $path = $this->_addImageTypeFileExtension($destFile, $fromPhpType, DIRECTORY_SEPARATOR);
             }
             else {
                 $path = $destFile;
@@ -304,7 +308,6 @@ class Image Extends Common {
           [srcH] => Source Height
          */
         $resizer = new ImageResize();
-        // __invoke($srcW = null, $srcH = null, $dstW = null, $dstH = null, $sizing = null, $alignment = null)
         $imgdata = $resizer(
             $imageProperties['width'],
             $imageProperties['height'],
@@ -374,6 +377,9 @@ class Image Extends Common {
             throw new Exception\RuntimeException($msg, $code);
         }
 
+        $imageFilter = $imageOptions['imagefilter'];
+        $haveFilter = (is_array($imageFilter) && ! empty($imageFilter));
+            
         $haveOverlayFile = ! Types::isBlank($imageOptions['overlayfile']);
 
         if($haveOverlayFile && ($optionFlags & MediaConst::IMG_OPTION_OVERLAY_BEFORE_FILTER)) {
@@ -384,15 +390,14 @@ class Image Extends Common {
             $overlay = false;
         }
 
-        $imageFilter = $imageOptions['imagefilter'];
-        if(is_array($imageFilter) && ! empty($imageFilter)) {
+        if($haveFilter) {
             $filterer = new ImageFilter();
             if(false === $filterer->applyFilter($dstImg, $imageFilter)) {
                 return false;
             }
         }
 
-        if(! $overlay && $haveOverlayFile && ($optionFlags & MediaConst::IMG_OPTION_OVERLAY_AFTER_FILTER)) {
+        if(! $overlay && $haveOverlayFile) {
             $this->_overlay($dstImg, $imageOptions);
         }
 
@@ -403,7 +408,7 @@ class Image Extends Common {
 
         if($optionFlags & MediaConst::IMG_OPTION_ADD_FILE_EXTENSION) {
             // Add a file extension ONLY if the file has no extension.
-            $destFile = $this->_addImageTypeFileExtension($destFile, $phpType);
+            $destFile = $this->_addImageTypeFileExtension($destFile, $phpType, DIRECTORY_SEPARATOR);
         }
 
         $destPath = $this->_checkFileOverwriteRename($destFile, $optionFlags);
@@ -417,10 +422,11 @@ class Image Extends Common {
             throw new Exception\RuntimeException($msg, MediaConst::E_FILE_EXISTS);
         }
 
+        $interlace = Types::isBool($imageOptions['interlace']) ? Types::boolVal($imageOptions['interlace']) : false;
+        $quality = is_numeric($imageOptions['quality']) ? intval($imageOptions['quality']) : -1;
         // _invoke($imgResource, $destFile, $phpType, $quality, $interlace = 0, $throw = true)
         $exporter = new ExportImage();
-        $returnFile = $exporter->export($dstImg, $destPath, $phpType, $imageOptions['quality'],
-            $imageOptions['interlace'], self::$_throwErrors);
+        $returnFile = $exporter->export($dstImg, $destPath, $phpType, $quality, $interlace, self::$_throwErrors);
 
         return $returnFile;
     }
@@ -518,7 +524,7 @@ class Image Extends Common {
      * @return string Return the file/pathname with the new extension appended unless the original
      * extension is same as new extension.
      */
-    protected function _addImageTypeFileExtension($path, $phpType = null) {
+    protected function _addImageTypeFileExtension($path, $phpType = null, string $dirSeparator = '') {
         if(! is_string($path) || ! strlen(trim($path))) {
             return $path;
         }
@@ -538,7 +544,13 @@ class Image Extends Common {
                 // Remove the extension.
                 $info['basename'] = $info['filename'];
             }
-            $path = FileSystem::joinPath('/', $info['dirname'], $info['basename'] . FileSystem::fileExtDot($ext));
+            if(! strlen($dirSeparator)) {
+                $dirSeparator = '/';
+                if(false === strpos($path, $dirSeparator) && false !== strpos($path, DIRECTORY_SEPARATOR)) {
+                    $dirSeparator = DIRECTORY_SEPARATOR;
+                }
+            }
+            $path = FileSystem::joinPath($dirSeparator, $info['dirname'], $info['basename'] . FileSystem::fileExtDot($ext));
         }
         return $path;
     }

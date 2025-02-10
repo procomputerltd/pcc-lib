@@ -14,14 +14,14 @@ class MessageStore {
     /**
      * Saves message or messages.
      * @param string|array|\Traversable|Message|MessageStore|\Throwable $messages Message or messages.
-     * @param string $messageType (optional) Message type eg 'error'
+     * @param string $messageType (optional) An alert type eg 'info', 'warning', 'error', 'danger'
      * @param string $title       (optional) Message title else $messageType used.
      * @return self
      */
     public function addMessage(string|array|\Traversable|Message|MessageStore|\Throwable $messages, string $messageType = 'default', string $title = '') {
         $defaultType = $this->_resolveMessageType($messageType);
         if(is_scalar($messages)) {
-            $msg = is_bool($messages) ? Types::getVartype($messages) : (string)$messages;
+            $msg = is_bool($messages) ? Types::getVartype($messages, 0x7fff) : (string)$messages;
             $this->_messages[] = new Message($msg, $defaultType, $title);
             return $this;
         }
@@ -54,25 +54,28 @@ class MessageStore {
                                 $msgTitle = $title;
                             }
                             foreach((array)$msgs as $msg) {
-                                $msg = (is_scalar($msg) && ! is_bool($msg)) ? (string)$msg : Types::getVartype($msg);
+                                $msg = (is_scalar($msg) && ! is_bool($msg)) ? (string)$msg : Types::getVartype($msg, 0x7fff);
                                 $this->_messages[] = new Message($msg, $msgType, $msgTitle);
                             }
                         }
                     }
                     else {
-                        $msg = (is_scalar($message) && ! is_bool($message)) ? (string)$message : Types::getVartype($message);
+                        $msg = (is_scalar($message) && ! is_bool($message)) ? (string)$message : Types::getVartype($message, 0x7fff);
                         $this->_messages[] = new Message($msg, $msgType, $title);
                     }
                 }
             }
             return $this;
         }
-        $msg = (is_scalar($messages) && ! is_bool($messages)) ? (string)$messages : Types::getVartype($messages);
+        $msg = (is_scalar($messages) && ! is_bool($messages)) ? (string)$messages : Types::getVartype($messages, 0x7fff);
         $this->_messages[] = new Message($msg, $msgType, $title);
         return $this;
     }
     /**
      * Alias of addMessage
+     * @param string|array|\Traversable|Message|MessageStore|\Throwable $messages Message or messages.
+     * @param string $messageType (optional) An alert type eg 'info', 'warning', 'error', 'danger'
+     * @param string $title       (optional) Message title else $messageType used.
      * @return self
      */
     public function saveMessage(string|array|\Traversable|Message|MessageStore|\Throwable $messages, string $messageType = 'default', string $title = '') {
@@ -152,16 +155,23 @@ class MessageStore {
     }
     
     private function _resolveMessageType(string $messageType) {
+        /* Bootstrap 5.x alert classes
+            alert-primary
+            alert-secondary
+            alert-success
+            alert-danger
+            alert-warning
+            alert-info
+            alert-light
+            alert-dark
+         */
         $map = [
-            'default' => 'info',
-            'info'    => 'info',
+            'default'     => 'info',
             'information' => 'info',
-            'success' => 'success',
-            'warning' => 'warning',
-            'error'   => 'error',
-            'danger'  => 'error'
+            'warn'        => 'warning',
+            'error'       => 'danger',
         ];
         $lcType = strtolower(trim($messageType)) ;
-        return isset($map[$lcType]) ? $map[$lcType] : 'info';
+        return isset($map[$lcType]) ? $map[$lcType] : $messageType;
     }
 }

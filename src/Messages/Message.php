@@ -12,12 +12,20 @@ namespace Procomputer\Pcclib\Messages;
  * for more details.
  */
 
+use Procomputer\Pcclib\Types;
+
 class Message {
     
-    private $_type = 'error';
-    private $_title = 'Error';
+    private $_type = 'default';
+    private $_title = 'Message';
     private $_message = 'no message available';
     
+    /**
+     * 
+     * @param string|\Throwable|Message $message
+     * @param string $type  (optional) An alert type eg 'info', 'warning', 'error', 'danger'
+     * @param string $title (optional) Message title else $type used.
+     */
     public function __construct(string|\Throwable|Message $message = null, string $type = 'default', string $title = '') {
         if(null !== $message) {
             $this->setMessage($message, $type, $title);
@@ -27,11 +35,11 @@ class Message {
     /**
      * Sets the message.
      * @param string|\Throwable $message
-     * @param string $type
-     * @param string $title
-     * @return $this
+     * @param string $type  (optional) An alert type eg 'info', 'warning', 'error', 'danger' 
+     * @param string $title (optional) Message title else $type used.
+     * @return $this 
      */
-    public function setMessage(string|\Throwable|Message $message, string $type = 'error', string $title = '') {
+    public function setMessage(string|\Throwable|Message $message, string $type = 'default', string $title = '') {
         if($message instanceof Message) {
             $this->_message = $message->getMessage();
             $this->_type = $message->getType();

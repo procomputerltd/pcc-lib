@@ -38,20 +38,19 @@ class ImportImage {
     }
 
     /**
-     * Saves an image resource to a file.
+     * Creates an image resource from a file.
      *
-     * @param resource $imgResource  Image resource created by imagecreatetruecolor() or imagecreate()
-     * @param string   $destFile     The file path to accept the image.
-     * @param int      $phpType      Type of image to create. A PHP 'IMAGETYPE_*' image type specifier.
-     * @param int      $quality      JPEG quality of the image. Default is 75. 0 = worst quality,
-     *                               smaller file. 100 = best quality, biggest file.
-     * @param boolean  $interlace    (optional) Apply interlacing to image.
-     * @param boolean  $throw        (optional) When TRUE, throw an exception(default) when a function fails else return FALSE.
+     * @param string  $file     File path from which to create image.
+     * @param int     $phpType  (optional) PHP 'IMAGETYPE_*' constant.
+     * @param boolean $throw    (optional) When TRUE, throw an exception(default) when getimagesize() function fails,
+     *                                     otherwise when FALSE return the image properties array in which the GD or
+     *                                     other error number is stored in the 'errno' key and error message is stored
+     *                                     in the 'error' key of the returned array.
      *
      * @return mixed Returns the file path name to which the image is written or FALSE on error.
      */
-    public function __invoke($imgResource, $destFile, $phpType, $quality, $interlace = 0, $throw = true) {
-        return $this->import($imgResource, $destFile, $phpType, $quality, $interlace, $throw);
+    public function __invoke(string $file, int $phpType = null, bool $throw = true) {
+        return $this->import($file, $phpType, $throw);
     }
 
     /**
@@ -64,9 +63,9 @@ class ImportImage {
      *                                     other error number is stored in the 'errno' key and error message is stored
      *                                     in the 'error' key of the returned array.
      *
-     * @return resource Returns an image resource identifier on success, FALSE on errors.
+     * @return resource|bool Returns an image resource identifier on success, FALSE on errors.
      */
-    public function import($file, $phpType = null, $throw = true) {
+    public function import(string $file, int $phpType = null, bool $throw = true) {
         /**
          * Attempt to fetch image properties from path if specified..
          * NOTICE: class ImageProperties exposes __invoke() function so may be called as function.
@@ -120,7 +119,6 @@ class ImportImage {
             $msg = sprintf(MediaConst::T_NO_FUNCTION, $imageCreateFunction);
             throw new Exception\RuntimeException($msg, MediaConst::E_NO_FUNCTION);
         }
-
         // imagecreatefromjpeg() may issue a 'recoverable error' warning or notice that indicates
         // premature end of JPEG file found. Use the '@' error control operator block output.
         // Sample error output:

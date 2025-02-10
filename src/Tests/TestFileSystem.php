@@ -2,16 +2,16 @@
 /*
 Copyright (C) 2018 Pro Computer James R. Steel
 
-This program is distributed WITHOUT ANY WARRANTY; without 
-even the implied warranty of MERCHANTABILITY or FITNESS FOR 
-A PARTICULAR PURPOSE. See the GNU General Public License 
+This program is distributed WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR
+A PARTICULAR PURPOSE. See the GNU General Public License
 for more details.
 */
-/* 
+/*
     Created on  : Nov 18, 2018, 9:11:55 PM
     Organization: Pro Computer
     Author      : James R. Steel
-    Description : PHP Software by Pro Computer 
+    Description : PHP Software by Pro Computer
 */
 namespace Procomputer\Pcclib\Tests;
 
@@ -26,42 +26,42 @@ class TestFileSystem extends TestCommon {
      * @var string
      */
     public $name = 'Filesystem';
-    
+
     /**
      * The description of this test class.
      * @var string
      */
     public $description = 'Pcc Filesystem class tests';
-    
+
     /**
      * Namespace to test.
      * @var string
      */
     protected $_namespace = 'Procomputer\Pcclib\FileSystem';
-    
+
     /**
      * Whether this test class and associated function throw exceptions.
      * @var boolean
      */
     protected $_throwsExceptions = true;
-    
+
     /**
      * Tests Filesystem class static methods.
-     * 
+     *
      * @param mixed $values  (optional) Values.
-     * @param mixed $options (optional) Options. 
-     * 
+     * @param mixed $options (optional) Options.
+     *
      * @return array Returns an array of TestResult objects.
      */
     public function exec($values = null, $options = null) {
-      
+
         $lcOptions = (null === $options) ? [] : array_change_key_case((array)$options);
         $sysTempDir = sys_get_temp_dir();
         if(isset($lcOptions['tempdir'])) {
             $tempDir = $lcOptions['tempdir'];
             if(! is_string($tempDir) || ! is_dir($tempDir)) {
-                $msg = "Cannot execute Filesystem tests: the 'tempdir' option that specifies" 
-                    . " the temporary directory to use for testing the Filesystem class is not a directory." 
+                $msg = "Cannot execute Filesystem tests: the 'tempdir' option that specifies"
+                    . " the temporary directory to use for testing the Filesystem class is not a directory."
                     . " Please specify a safe existing directory in the 'tempdir' option";
                 if(is_dir($sysTempDir)) {
                     $msg .= " or omit the 'tempdir' option and the system's temporary directory will be used";
@@ -70,25 +70,25 @@ class TestFileSystem extends TestCommon {
             }
         }
         elseif(! is_dir($sysTempDir)) {
-            $msg = "Cannot execute Filesystem tests: the directory returned by sys_get_temp_dir() is not a directory." 
+            $msg = "Cannot execute Filesystem tests: the directory returned by sys_get_temp_dir() is not a directory."
                 . " Please specify a safe existing directory in the 'tempdir' option";
             throw new Procomputer\Pcclib\Tests\Exception\RuntimeException($msg);
         }
         else {
             $tempDir = $sysTempDir;
         }
-        
+
         $tempDir .= DIRECTORY_SEPARATOR . 'pcclib_tests_' . md5(__CLASS__ . 'H1mJ-09Tg!5');
         if(! file_exists($tempDir)) {
             if(! mkdir($tempDir) || ! is_dir($tempDir)) {
-                $msg = "Cannot execute Filesystem tests: cannot create the temporary directory for testing." 
+                $msg = "Cannot execute Filesystem tests: cannot create the temporary directory for testing."
                     . " Please specify a safe existing directory in the 'tempdir' option";
                 throw new Procomputer\Pcclib\Tests\Exception\RuntimeException($msg);
             }
         }
-            
+
         $tempDir = preg_replace('~[ \\t/]*$~', '', str_replace('\\', '/', $tempDir)) . '/';
-        
+
         $tempFile = $tempDir . 'temp_file.txt';
         $copyFileDest = $tempDir . 'dest_file.txt';
         $uniqueFile = $tempDir . 'unique_file.txt';
@@ -99,9 +99,9 @@ class TestFileSystem extends TestCommon {
         $anotherDir = $tempDir . 'another_dir';
         $outputFile = $tempDir . 'outfile.txt';
         $readWriteLockedFile = $tempDir . 'locked_file.txt';
-        
+
         $imageFile = __DIR__ . '\procomputer.png';
-        
+
         if(!file_exists($readWriteLockedFile)) {
             file_put_contents($readWriteLockedFile, str_repeat(chr(0), 255));
             // 0600 Read and write for owner, nothing for everybody else
@@ -128,7 +128,7 @@ class TestFileSystem extends TestCommon {
         }
         $infile = fopen($readWriteLockedFile, 'rb');
         $outfile = fopen($outputFile, 'wb');
-        
+
         $tempFiles = [
             $anotherDir,
             $bogusDir,
@@ -140,11 +140,11 @@ class TestFileSystem extends TestCommon {
             $newFileName,
             $uniqueFile
             ];
-        
+
         $methods = [
             'filePutContents' => [
                 'params' => [
-                    ['the quick brown fox jumps over the lazy dog', $tempFile], 
+                    ['the quick brown fox jumps over the lazy dog', $tempFile],
                     [$this, $tempFile]
                 ],
             ],
@@ -273,20 +273,20 @@ class TestFileSystem extends TestCommon {
         ];
 
         $classPath = $this->_namespace;
-        
+
         $phpErrHandler = new PhpErrorHandler();
         foreach($methods as $method => $properties) {
             foreach($properties['params'] as $params) {
-                
+
                 switch($method) {
                 case 'streamCopyToStream':
                     rewind($infile);
                     break;
                 }
-                
+
                 FileSystem::throwErrors(false);
                 $this->_callStatic($classPath, $method, $params, $phpErrHandler, false);
-                
+
                 switch($method) {
                 case 'createTempFile':
                 case 'backupFileToTemp':
@@ -297,16 +297,19 @@ class TestFileSystem extends TestCommon {
                 case 'getUniqueFilename':
                     if(null !== $this->_lastCallStaticResult) {
                         $tempFiles[] = $file = $this->_lastCallStaticResult;
-                        file_put_contents($file, 'This file used for testing PSS\'s getUniqueFilename() method');                    }
+                        if(! file_put_contents($file, 'This file used for testing PSS\'s getUniqueFilename() method')) {
+                            
+                        }
+                    }
                     break;
-                }                
+                }
 
                 switch($method) {
                 case 'streamCopyToStream':
                     rewind($infile);
                     break;
                 }
-                
+
                 FileSystem::throwErrors(true);
                 $results = $error = null;
                 try {
@@ -340,7 +343,7 @@ class TestFileSystem extends TestCommon {
                 }
             }
         }
-        
+
         fclose($infile);
         fclose($outfile);
 
@@ -355,7 +358,7 @@ class TestFileSystem extends TestCommon {
                 }
             }
         }
-        
+
         return $this->_testResults;
     }
 }

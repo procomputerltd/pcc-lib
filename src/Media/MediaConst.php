@@ -118,8 +118,20 @@ class MediaConst {
     const T_PHP_FUNCTION_FAILED = "image function '%s' failed";
     const T_PROPERTY_NOT_FOUND = 'property not found: %s';
     const T_SOURCE_FILE_NOT_FOUND = "source file not found: '%s'";
-    const T_IMAGE_SIZE_INVALID = "invalid image width(%s) and/or height(%s) parameters";
+    const T_IMAGE_SIZE_INVALID = "invalid image x(%s) and/or y(%s) parameters";
     const T_IPTC_NO_FUNCTION = "cannot embed IPTC code: IPTC functions are not enabled";
     const T_IPTC_INVALID_IPTC_FIELD = "invalid IPTC embedding code '%s'";
 
+    const UPLOAD_ERR_OK = 0;         // no error
+    const UPLOAD_ERR_INI_SIZE = 1;   // The uploaded file exceeds the upload_max_filesize directive in php.ini.
+    const UPLOAD_ERR_FORM_SIZE = 2;  // The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.
+    const UPLOAD_ERR_PARTIAL = 3;    // The uploaded file was only partially uploaded.
+    const UPLOAD_ERR_NO_FILE = 4;    // No file was uploaded. No file was selected using the file browse button.
+    const UPLOAD_ERR_NO_TMP_DIR = 6; // Missing a temporary folder.
+    const UPLOAD_ERR_CANT_WRITE = 7; // Failed to write file to disk.
+    const UPLOAD_ERR_EXTENSION = 8;  // A PHP extension stopped the file upload. PHP does not provide a way to ascertain which extension caused the file upload to stop; examining the list of loaded extensions with phpinfo() may help.
+    const UPLOAD_ERR_INCOMPLETE = 65535;            // 'The file download did not complete: an unknown error code was submitted.',
+    const UPLOAD_ERR_TMP_NAME_MISSING = 65536;      // "'tmp_name' file path property is missing from the file download.",
+    const UPLOAD_ERR_TMP_FILE_NOT_FOUND = 65537;    // "file '%s' not found : file path does not exist",
+    const UPLOAD_ERR_TMP_FILE_NOT_READABLE = 65538; // "file '%s' is not readable"
 }

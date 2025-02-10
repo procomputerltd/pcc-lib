@@ -24,28 +24,22 @@ use Procomputer\Pcclib\Types;
 class Overlay extends Common {
 
     /**
-     * Constructor
-     */
-    public function __construct() {
-        // Doesn't do anything except...overrides the 'overlay' function so 'overlay()' isn't called on instanciation.
-    }
-
-    /**
      * Merge an overlay image into the destination image.
      *
-     * @param resource|string $dstImg  Destination image in which to merge overlayed image.
-     * @param string $fileToOverlay    Image file to overlay the Destination image.
-     * @param int    $mergePercentage  (optional) Overlay transparency (merge percentage) 0-100%. 0 does NOTHING while 100 overlays the file AS-IS; no transparency.
-     * @param int    $overlayOptions   (optional) One or more "IMG_OPTION_OVERLAY_*" values OR-d together.
-     * @param int    $overlayAlign     (optional) A "MediaConst::ALIGN_*" value.
-     * @param int    $overlayRotate    (optional) Degrees to rotate the overlayed image.
-     * @param int    $transparentColor (optional) RGB of the overlay image transparency color.
+     * @param \GdImage        $dstImg           Destination image in which to merge overlayed image.
+     * @param string|\GdImage $fileToOverlay    Image file or GD resource to overlay the Destination image.
+     * @param int             $mergePercentage  (optional) Overlay transparency (merge percentage) 0-100%. 0 does NOTHING while 100 overlays the file AS-IS; no transparency.
+     * @param int             $overlayOptions   (optional) One or more "IMG_OPTION_OVERLAY_*" values OR-d together.
+     * @param int             $overlayAlign     (optional) A "MediaConst::ALIGN_*" value.
+     * @param int             $overlayRotate    (optional) Degrees to rotate the overlayed image.
+     * @param int             $transparentColor (optional) RGB of the overlay image transparency color.
      * @return boolean
      * @throws Exception\InvalidArgumentException
      */
-    public function overlay($dstImg, $fileToOverlay, $mergePercentage = null, $overlayOptions = null, $overlayAlign = null,
-        $overlayRotate = null, $transparentColor = null) {
-        if(empty($fileToOverlay)) {
+    public function overlay(\GdImage $dstImg, string|\GdImage $fileToOverlay, int|float|string $mergePercentage = null, 
+            int|float|string $overlayOptions = null, $overlayAlign = null, int|float|string $overlayRotate = 0, 
+            int|float|string $transparentColor = null) {
+        if(Types::isBlank($fileToOverlay)) {
             // no overlay image specified in the overlay property.
             // Cannot overlay image: no overlay image specified.
             throw new Exception\InvalidArgumentException(MediaConst::T_NO_OVERLAY_IMAGE, MediaConst::E_NO_OVERLAY_IMAGE);
@@ -101,7 +95,10 @@ class Overlay extends Common {
         }
 
         if($overlayOptions & MediaConst::IMG_OPTION_OVERLAY_REPEAT) {
-            $dstImg = $this->_repeat($dstImg, $ovImg);
+            if(method_exists($this, '_repeat')) {
+                $dstImg = $this->_repeat($dstImg, $ovImg);
+            }
+            $res = true;
         }
         else {
             if(null === $overlayAlign) {

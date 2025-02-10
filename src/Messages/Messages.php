@@ -1,15 +1,11 @@
 <?php
+/**
+ * PHP message storage and retrieval trait.
+ * 
+ */
 namespace Procomputer\Pcclib\Messages;
 
 trait Messages {
-
-//    protected $_messageType = [
-//        ['Error',       'danger'],
-//        ['Warning',     'warning'],
-//        ['Success',     'success'],
-//        ['Information', 'info'],
-//        ['Message',     'info']
-//    ];
 
     /**
      * 
@@ -31,11 +27,21 @@ trait Messages {
     /**
      * Saves message or messages.
      * @param string|array|\Traversable|\Throwable|Message $messages Message or messages.
-     * @param string $messageType (optional) Message type eg 'error'
+     * @param string $messageType (optional) An alert type eg 'info', 'warning', 'error', 'danger'
      * @param string $title       (optional) Message title else $messageType used.
      * @return self
      */
     public function addMessage(string|array|\Traversable|\Throwable|Message|MessageStore $messages, string $messageType = 'default', string $title = '') {
+        /* Bootstrap 5.x alert classes
+            alert-primary
+            alert-secondary
+            alert-success
+            alert-danger
+            alert-warning
+            alert-info
+            alert-light
+            alert-dark
+         */
         $this->messageStore()->addMessage($messages, $messageType, $title);
         return $this;
     }

@@ -39,7 +39,7 @@ class ExportImage {
     /**
      * Saves an image resource to a file.
      *
-     * @param resource $imgResource  Image resource created by imagecreatetruecolor() or imagecreate()
+     * @param resource $imgResource  Image resource created by imagecreatetruecolor() or imagecreate() or imagecreatefromstring()
      * @param string   $destFile     The file path to accept the image.
      * @param int      $phpType      Type of image to create. A PHP 'IMAGETYPE_*' image type specifier.
      * @param int      $quality      JPEG quality of the image. Default is 75. 0 = worst quality,
@@ -49,14 +49,14 @@ class ExportImage {
      *
      * @return mixed Returns the file path name to which the image is written or FALSE on error.
      */
-    public function __invoke($imgResource, $destFile, $phpType, $quality, $interlace = 0, $throw = true) {
+    public function __invoke(\GdImage $imgResource, string $destFile, int $phpType, int $quality = null, bool $interlace = false, bool $throw = true) {
         return $this->export($imgResource, $destFile, $phpType, $quality, $interlace, $throw);
     }
 
     /**
      * Saves an image resource to a file.
      *
-     * @param resource $imgResource  Image resource created by imagecreatetruecolor() or imagecreate()
+     * @param resource $imgResource  Image resource created by imagecreatetruecolor() or imagecreate() or imagecreatefromstring()
      * @param string   $destFile     The file path to accept the image.
      * @param int      $phpType      Type of image to create. A PHP 'IMAGETYPE_*' image type specifier.
      * @param int      $quality      JPEG quality of the image. Default is 75. 0 = worst quality,
@@ -66,8 +66,7 @@ class ExportImage {
      *
      * @return mixed Returns the file path name to which the image is written or FALSE on error.
      */
-    public function export($imgResource, $destFile, $phpType, $quality, $interlace = 0, $throw = true) {
-
+    public function export(\GdImage $imgResource, string $destFile, int $phpType, int $quality = null, bool $interlace = null, bool $throw = true) {
         $phpErrorHandler = new PhpErrorHandler();
 
         $typeName = ImageType::getImageType($phpType, true);
@@ -75,37 +74,33 @@ class ExportImage {
             $typeName = "#" . Types::getVartype($phpType);
         }
 
+        $prevInterlace = true;
+        switch($phpType) {
+        case IMAGETYPE_JPEG:
+        case IMAGETYPE_PNG:
+        case IMAGETYPE_GIF:
+            // Turn interlace on or off. If interlace fails ignore it for now.
+            $prevInterlace = $phpErrorHandler->call(function()use($imgResource, $interlace){
+                return imageinterlace($imgResource, $interlace);
+            });
+            break;
+        }
+        
         switch($phpType) {
         case IMAGETYPE_JPEG:
             // imagejpeg quality parameter is optional, and ranges from
             // 0 (worst quality, smaller file) to 100 (best quality, biggest file).
             // The default is the default IJG quality value (about 75).
-
-            // If interlace fails ignore it for now.
-            $prevInterlace = $phpErrorHandler->call(function()use($imgResource, $interlace){
-                return imageinterlace($imgResource, empty($interlace) ? 0 : 1);
-            });
             $quality = (MediaConst::QUALITY_DEFAULT == $quality) ? null : $this->_getValidJpegQuality($quality);
-            if(is_numeric($quality)) {
-                $res = $phpErrorHandler->call(function()use($imgResource, $destFile, $quality){
-                    return imagejpeg($imgResource, $destFile, $quality);
-                });
-            }
-            else {
-                $res = $phpErrorHandler->call(function()use($imgResource, $destFile){
-                    return imagejpeg($imgResource, $destFile);
-                });
-            }
+            $res = $phpErrorHandler->call(function()use($imgResource, $destFile, $quality){
+                return imagejpeg($imgResource, $destFile, $quality ? $quality : null);
+            });
             if(!$res) {
                 $imageFunction = "imagejpeg";
             }
             break;
 
         case IMAGETYPE_GIF:
-            // If interlace fails ignore it for now.
-            $prevInterlace = $phpErrorHandler->call(function()use($imgResource, $interlace){
-                return imageinterlace($imgResource, empty($interlace) ? 0 : 1);
-            });
             $res = $phpErrorHandler->call(function()use($imgResource, $destFile){
                 return imagegif($imgResource, $destFile);
             });
@@ -115,10 +110,6 @@ class ExportImage {
             break;
 
         case IMAGETYPE_PNG:
-            // If interlace fails ignore it for now.
-            $prevInterlace = $phpErrorHandler->call(function()use($imgResource, $interlace){
-                return imageinterlace($imgResource, empty($interlace) ? 0 : 1);
-            });
             if(MediaConst::QUALITY_DEFAULT == $quality || version_compare(phpversion(), "5.1.2", "<")) {
                 $quality = null;
             }
@@ -217,7 +208,7 @@ class ExportImage {
      *
      * @return int|mixed Returns a valid JPEG quality value or the default when invalid.
      */
-    protected function _getValidJpegQuality($quality, $default = null) {
+    protected function _getValidJpegQuality(mixed $quality, mixed $default = null) {
         if(is_null($quality) || ! Types::isFloat($quality)) {
             return $default;
         }
