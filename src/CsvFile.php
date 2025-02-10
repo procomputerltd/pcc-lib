@@ -149,11 +149,13 @@ class CsvFile extends Common {
         else {
             $path = trim($file);
             $dir = dirname($path);
-            if(! strlen($dir) || '.' === $dir) {
+            if(! strlen($dir) || '.' === $dir || '..' === $dir) {
                 $path = Filesystem::joinPath(DIRECTORY_SEPARATOR, getcwd(), $path);
             }
             else {
-                $path = Filesystem::replaceWithOsSlashes($path);
+                $delim = DIRECTORY_SEPARATOR;
+                $alt = ("\\" === $delim) ? "/" : "\\";
+                $path = str_replace($alt, $delim, $path);
             }
             if($read) {
                 $realpath = FileSystem::getRealPath($path);

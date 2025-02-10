@@ -1,4 +1,5 @@
 <?php
+
 /*
 Copyright (C) 2018 Pro Computer James R. Steel
 
@@ -32,8 +33,7 @@ class Arrays {
      *
      * @return array
      */
-    public static function extend(array $defaults, array &$options, $preserveOptions = true, $caseInsensitive = true,
-        $omitNull = false) {
+    public static function extend(array $defaults, array &$options, $preserveOptions = true, $caseInsensitive = true, $omitNull = false): array {
         $keys = array_keys($options);
         $optionKeys = array_combine($keys, $keys);
         if($caseInsensitive) {
@@ -102,10 +102,10 @@ class Arrays {
         if(null === $mixed) {
             return $default;
         }
-        if($mixed instanceof \stdClass) { // int,float,string,bool,stdClass
+        if($mixed instanceof \stdClass) {
             return (array)$mixed;
         }
-        if(is_scalar($mixed)) { // int,float,string,bool,stdClass
+        if(is_scalar($mixed)) { // int,float,string,bool
             return [$mixed];
         }
         if($mixed instanceof \Traversable) {

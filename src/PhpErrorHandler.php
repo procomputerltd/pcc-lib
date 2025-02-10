@@ -74,6 +74,7 @@ class PhpErrorHandler {
             $eData->line = $exc->getLine();
             $eData->trace = $exc->getTrace();
             $eData->traceString = $exc->getTraceAsString();
+            $res = false;
         }
         finally {
             set_error_handler($errorHandler);

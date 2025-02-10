@@ -1203,7 +1203,7 @@ class FileSystem extends Common {
     /**
      * @return boolean   Returns TRUE when the OS is MS.
      */
-    private static function osWindows() {
+    public static function osWindows() {
         if(is_null(self::$_osWindows)) {
             /* php_uname 'mode' parameter is a single character that defines what information is returned:             
                 a  This is the default. Contains all modes in the sequence "s n r v m".

@@ -102,8 +102,8 @@ class NumberParser extends Common {
      *
      * @param mixed  $number The number being parsed.
      */
-    public function __construct($number = null) {
-        if(null !== $number) {
+    public function __construct(mixed $number = null) {
+        if(null !== $number && (! is_string($number) || strlen($number))) {
             $error = $this->parseNumber($number);
             if($error instanceof Error) {
                 throw new Exception\RuntimeException($error->getMessage(), $error->getCode());

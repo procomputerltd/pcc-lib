@@ -132,6 +132,9 @@ class Types {
             return false;
         }
         $number = trim($number);
+        if(! strlen($number)) {
+            return false;
+        }
         if(ctype_digit($number) && strlen($number) < 308) {
             // It's a string of digits.
             return true;
@@ -189,7 +192,7 @@ class Types {
     /**
      * Returns TRUE when the parameter is a boolean.
      *
-     * @param mixed $mixed       Value to check for being boolean.
+     * @param mixed $mixed Value to check for being boolean. This does not check for strings 'true', 'false' !
      *
      * @return boolean Return TRUE when the parameter is boolean.
      */
