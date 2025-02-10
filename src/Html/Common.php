@@ -25,7 +25,7 @@ class Common {
      * @param array $attributes
      * @return string
      */
-    protected function _buildAttribs(array $attributes) {
+    public function buildAttribs(array $attributes) {
         if(!empty($attributes)) {
             $attr = [];
             foreach($attributes as $t => $v) {

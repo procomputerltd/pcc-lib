@@ -35,41 +35,19 @@ class HtmlTable extends HtmlTableCommon {
      */
     protected function _render(array $options = []) {
         $rows = $this->_toArray($options['rows']);
-        $colCount = 0;
         foreach($rows as $label => $row) {
             if(! is_array($row)) {
                 $row = $rows[$label] = $this->_toArray($row);
             }
-            $c = count($row) ;
-            if($colCount < $c) {
-               $colCount = $c;
-            }
         }
-
-        if(isset($options['header'])) {
-            $header = $this->_toArray($options['header']);
-            if(count($header) > $colCount) {
-                $header = array_slice($header, 0, $colCount);
-            }
-            else {
-                $header = array_pad($header, $colCount, '-');
-            }
-            $headerRow = $this->add();
-            $attr = isset($options['headerattributes']) ? $this->_toArray($options['headerattributes']) : [];
-            foreach($header as $label) {
-                $headerRow->add($label, $attr);
-            }
-        }
-
-        $noEscape = $options['noescape'] ?? false;
         $attr = isset($options['attributes']) ? $this->_toArray($options['attributes']) : [];
-        foreach($rows as $key => $values) {
+        foreach($rows as $values) {
             $row = $this->add();
             foreach($values as $value) {
-                $row->add($noEscape ? $value : $this->_escape($value), $attr);
+                $row->add($value, $attr);
             }
         }
-        unset($options['rows'], $options['header'], $options['noescape']);
+        unset($options['rows']);
         $options['tag'] = 'table';
         $return = parent::render($options);
         return $return;

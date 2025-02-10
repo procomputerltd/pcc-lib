@@ -14,7 +14,7 @@ class HtmlTableCol extends HtmlTableCommon {
      * @return string
      */
     public function render(array $options = []) {
-        $return = "<td{$this->_buildAttribs($this->_attributes)}>{$this->_innerHtml}</td>";
+        $return = "<td{$this->buildAttribs($this->_attributes)}>{$this->_innerHtml}</td>";
         return $return;
     }
 }

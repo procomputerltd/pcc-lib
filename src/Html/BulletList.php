@@ -1,4 +1,5 @@
 <?php
+namespace Procomputer\Pcclib\Html;
 /*
 Copyright (C) 2018 Pro Computer James R. Steel
 
@@ -13,7 +14,6 @@ for more details.
     Author      : James R. Steel
     Description : Builds an HTML ul, ol list element.
 */
-namespace Procomputer\Pcclib\Html;
 
 /**
  * Builds an HTML ul, ol list element.
@@ -56,13 +56,13 @@ class BulletList extends Common {
         if(isset($attr['liAttributes'])) {
             $liAttr = is_array($attr['liAttributes']) ? $attr['liAttributes'] : null;
             unset($attr['liAttributes']);
-            $liAttributes = $this->_buildAttribs($liAttr);
+            $liAttributes = $this->buildAttribs($liAttr);
         }
         else {
             $liAttributes = '';
         }
 
-        return $this->_recurse($items, $tag, $this->_buildAttribs($attr), $liAttributes, $escape);
+        return $this->_recurse($items, $tag, $this->buildAttribs($attr), $liAttributes, $escape);
     }
 
     /**

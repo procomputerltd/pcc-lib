@@ -20,7 +20,7 @@ namespace Procomputer\Pcclib\Html;
 class Div extends Common {
     /**
      * Create an HTML division element.
-     * __invoke lets you call this object like a function. Also makes compatible with Zend Framework view helper plugin
+     * __invoke lets you call this object like a function.
      *
      * @param string $innerScript Script to insert into the division.
      * @param array  $attributes  (optional) Element attributes.

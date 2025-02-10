@@ -50,7 +50,7 @@ class Element extends Common {
             throw new Exception\InvalidArgumentException("invalid 'tag' parameter '{$var}': expecting a string HTML tag");
         }
         $return = array('<' . $tag);
-        $atrribs = $this->_buildAttribs($attributes);
+        $atrribs = $this->buildAttribs($attributes);
         if(!empty($atrribs)) {
             $return[] = $atrribs;
         }

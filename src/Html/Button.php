@@ -20,7 +20,7 @@ namespace Procomputer\Pcclib\Html;
 class Button extends Common {
 
     /**
-     * __invoke lets you call this object like a function. Also makes compatible with Zend Framework view helper plugin
+     * __invoke lets you call this object like a function.
      *
      * @param string $innerScript (optional) Script to insert into the button.
      * @param array  $attributes  (optional) Element attributes.

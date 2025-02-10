@@ -9,7 +9,9 @@ for more details.
 */
 namespace Procomputer\Pcclib\HtmlTable;
 
-class HtmlTableCommon {
+use Procomputer\Pcclib\Html\Common as HtmlCommon;
+
+class HtmlTableCommon extends HtmlCommon {
 
     /**
      * Element value.
@@ -63,7 +65,7 @@ class HtmlTableCommon {
                 $obj = $this->_children[] = $isTableRow ? new HtmlTableCol($attributes, $value) : new HtmlTableRow($attributes, $value);
             }
         }
-        return $obj;
+        return $obj ?? null;
     }
 
     /**
@@ -96,7 +98,7 @@ class HtmlTableCommon {
             if($this instanceof HtmlTable && isset($lcOptions['attributes']) && is_array($lcOptions['attributes'])) {
                 $attributes = array_merge($attributes, $lcOptions['attributes']);
             }
-            $html = "<{$lcOptions['tag']}{$this->_buildAttribs($attributes)}>\n" . $html . "</{$lcOptions['tag']}>";
+            $html = "<{$lcOptions['tag']}{$this->buildAttribs($attributes)}>\n" . $html . "</{$lcOptions['tag']}>";
         }
         return $html;
     }
@@ -109,22 +111,6 @@ class HtmlTableCommon {
         $this->_innerHtml = '';
         $this->_children = [];
         return $this;
-    }
-
-    /**
-     * Builds HTML element attribute declarations.
-     * @param array $attr
-     * @return string
-     */
-    protected function _buildAttribs(array $attr) {
-        $return = array();
-        foreach($attr as $name => $value) {
-            if(is_string($name) && !empty($value)) {
-                $return[] = $name . '="' . str_replace('"', '&quot;', $value) . '"';
-            }
-        }
-
-        return empty($return) ? '' : (' ' . implode(' ', $return));
     }
 
     /**
