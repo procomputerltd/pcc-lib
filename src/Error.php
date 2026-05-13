@@ -103,18 +103,18 @@ class Error {
     protected $_traceString = '';
 
     /**
-     * The SQL State.
+     * The error State or SQL state
      * @var string
      */
-    protected $_sqlState = '';
+    protected $_state = '';
 
     /**
      *
-     * @param \Exception|string $error     Error or message.
-     * @param mixed             $code      (optional) Error code.
-     * @param mixed             $sqlState  (optional) Error SQL State.
+     * @param \Exception|string $error  Error or message.
+     * @param mixed             $code   (optional) Error code.
+     * @param mixed             $state  (optional) Error State or SQL state.
      */
-    public function __construct($error, $code = null, $sqlState = null, $level = E_ERROR) {
+    public function __construct($error, $code = null, $state = null, $level = E_ERROR) {
         if(is_object($error)) {
             $methods = [
                 'Message',
@@ -139,8 +139,8 @@ class Error {
         if(null !== $code) {
             $this->setCode($code);
         }
-        if(null !== $sqlState) {
-            $this->setSqlState($sqlState);
+        if(null !== $state) {
+            $this->setState($state);
         }
         $this->setLevel($level);
 
@@ -394,8 +394,8 @@ class Error {
      *
      * @return mixed
      */
-    public function getSqlState() {
-        return $this->_sqlState ;
+    public function getState() {
+        return $this->_state ;
     }
 
     /**
@@ -405,8 +405,8 @@ class Error {
      *
      * @return Error
      */
-    public function setSqlState($value) {
-        $this->_sqlState = $value ;
+    public function setState($value) {
+        $this->_state = $value ;
         return $this ;
     }
 }

@@ -1148,7 +1148,7 @@ class FileSystem extends Common {
      * @param string $fileExtension The file extension for which to find description.
      * @return string
      */
-    public static function getFileExtensionDescription($fileExtension) {
+    public static function getFileTypeDescription($fileExtension) {
         if(! is_string($fileExtension) || ! strlen($ext = trim($fileExtension))) {
             // invalid '%s' parameter '%s'
             $msg = sprintf(Constant::T_PARAMETER_INVALID, 'fileExtension', Types::getVartype($fileExtension)) . ": expecting a string file extension";
@@ -1158,7 +1158,7 @@ class FileSystem extends Common {
             return new Error($msg, Constant::E_PARAMETER_INVALID);
         }
         $fileInformation = new FileInformation();
-        $return = $fileInformation->getFileExtensionDescription($fileExtension);
+        $return = $fileInformation->getFileTypeDescription($fileExtension);
         return $return;
     }
     

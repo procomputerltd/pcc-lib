@@ -881,10 +881,26 @@ class FileInformation {
      * @param string $fileExtension The file extension for which to find description.
      * @return string
      */
-    public function getFileExtensionDescription($fileExtension) {
+    public function getFileTypeDescription($fileExtension) {
         if(Types::isBlank($fileExtension)) {
             return null;
         }
+        $data = $this->getFileExtensionCsvTable();
+        if(! is_array($data)) {
+            return null;
+        }
+        $lcExt = strtolower($fileExtension);
+        foreach($data as $line) {
+            $line = trim($line);
+            if(strlen($line)) {
+                $split = explode(',', $line);
+                if(count($split) > 1 && $lcExt === $split[0]) {
+                    return trim($split[1], " \n\r\t\v\x00\"");
+                }
+            }
+        }
+        return null;
+        /*
         $data = $this->getFileExtensionTable();
         if(! is_array($data)) {
             return null;
@@ -894,7 +910,7 @@ class FileInformation {
         if(! isset($flipped[$lowerExt])) {
             return null;
         }
-        $pointers = $this->getFileExtensionDescriptionOffsetTable();
+        $pointers = $this->getFileTypeDescriptionOffsetTable();
         if(! is_array($pointers)) {
             return null;
         }
@@ -920,6 +936,17 @@ class FileInformation {
         $description = fread($handle, $len);
         fclose($handle);
         return (false === $description) ? null : $description;
+         */
+    }
+
+    /**
+     * Returns array file extensions and their descriptions.
+     * @param boolean $associate  Return an associated array extension=>description.
+     * @return array|boolean
+     */
+    public function getFileExtensionCsvTable() {
+        $file = dirname(__FILE__) . '/file_ext_with_descriptions.csv';
+        return $this->_fileToArray($file);
     }
 
     /**
@@ -937,7 +964,7 @@ class FileInformation {
      * @param boolean $associate  Return an associated array extension=>description.
      * @return array|boolean
      */
-    public function getFileExtensionDescriptionOffsetTable() {
+    public function getFileTypeDescriptionOffsetTable() {
         $file = dirname(__FILE__) . '/file_ext_desc_offset.csv';
         return $this->_fileToArray($file);
     }

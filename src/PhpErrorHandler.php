@@ -91,7 +91,7 @@ class PhpErrorHandler {
      * @return string Returns the last error message or the default error message.
      */
     public function getErrorObj() {
-        return $this->$this->lastErrorObj;
+        return $this->lastErrorObj;
     }
 
     /**

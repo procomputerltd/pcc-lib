@@ -15,33 +15,13 @@ for more details.
 */
 namespace Procomputer\Pcclib;
 
-use Procomputer\Pcclib\FileSystem,
-    Procomputer\Pcclib\Types;
+use Procomputer\Pcclib\FileSystem;
+use Procomputer\Pcclib\Types;
 
 /**
  * Read and writes CSV files.
  */
 class CsvFile extends Common {
-
-    /**
-     * Switch: throw errors or return an Error object when a major error occurrs.
-     * @var boolean
-     */
-    private static $_throwErrors = true;
-
-    /**
-     * Sets the throw errors setting that determines whether an exception is thrown on severe
-     * errors or an Error object is returned on severe errors.
-     * @param boolean $throw (optional) Sets the throw errors setting. If null the setting is not changed.
-     * @return boolean Returns the previous throw errors setting.
-     */
-    public static function throwErrors($throw = null) {
-        $return = self::$_throwErrors;
-        if(null !== $throw) {
-            self::$_throwErrors = (bool)$throw;
-        }
-        return $return;
-    }
 
     /**
      * Writes data to a CSV file.
@@ -58,10 +38,7 @@ class CsvFile extends Common {
         $handle = $this->_open($file, false);
         if(is_array($handle)) {
             list($msg, $code) = $handle;
-            if(self::$_throwErrors) {
-                throw new Exception\RuntimeException($msg, $code);
-            }
-            return new Error($msg, $code);
+            throw new Exception\RuntimeException($msg, $code);
         }
         $lineCount = 0;
         $callable = is_callable($callBack);
@@ -82,10 +59,7 @@ class CsvFile extends Common {
             if(! $res) {
                 $msg = $phpErrorHandler->getErrorMsg('cannot write CSV file', 'fputcsv() failed');
                 fclose($handle);
-                if(self::$_throwErrors) {
-                    throw new Exception\RuntimeException($msg, Constant::E_FILE_WRITE);
-                }
-                return new Error($msg, Constant::E_FILE_WRITE);
+                throw new Exception\RuntimeException($msg, Constant::E_FILE_WRITE);
             }
             $lineCount++;
         }
@@ -105,10 +79,7 @@ class CsvFile extends Common {
         $handle = $this->_open($file, true);
         if(is_array($handle)) {
             list($msg, $code) = $handle;
-            if(self::$_throwErrors) {
-                throw new Exception\RuntimeException($msg, $code);
-            }
-            return new Error($msg, $code);
+            throw new Exception\RuntimeException($msg, $code);
         }
         $data = [];
         $phpErrorHandler = new PhpErrorHandler();
@@ -122,10 +93,7 @@ class CsvFile extends Common {
             if(! $line) {
                 $msg = $phpErrorHandler->getErrorMsg('', '');
                 if(! empty($msg)) {
-                    if(self::$_throwErrors) {
-                        throw new Exception\RuntimeException($msg, Constant::E_FILE_READ);
-                    }
-                    return new Error($msg, Constant::E_FILE_READ);
+                    throw new Exception\RuntimeException($msg, Constant::E_FILE_READ);
                 }
                 break;
             }
