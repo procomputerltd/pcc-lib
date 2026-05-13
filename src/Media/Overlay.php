@@ -15,8 +15,11 @@ for more details.
 */
 namespace Procomputer\Pcclib\Media;
 
-use Procomputer\Pcclib\PhpErrorHandler;
 use Procomputer\Pcclib\Types;
+use Procomputer\Pcclib\PhpErrorHandler;
+use Procomputer\Pcclib\Media\Exception\InvalidArgumentException;
+use Procomputer\Pcclib\Media\Exception\RuntimeException;
+use GdImage;
 
 /**
  * Overlays an image on another image with optional transparency (merge percentage) for watermarks etc.
@@ -26,48 +29,54 @@ class Overlay extends Common {
     /**
      * Merge an overlay image into the destination image.
      *
-     * @param \GdImage        $dstImg           Destination image in which to merge overlayed image.
-     * @param string|\GdImage $fileToOverlay    Image file or GD resource to overlay the Destination image.
+     * @param GdImage         $dstImg           Destination image in which to merge overlayed image.
+     * @param string|GdImage  $fileToOverlay    Image file or GD resource to overlay the Destination image.
      * @param int             $mergePercentage  (optional) Overlay transparency (merge percentage) 0-100%. 0 does NOTHING while 100 overlays the file AS-IS; no transparency.
      * @param int             $overlayOptions   (optional) One or more "IMG_OPTION_OVERLAY_*" values OR-d together.
      * @param int             $overlayAlign     (optional) A "MediaConst::ALIGN_*" value.
      * @param int             $overlayRotate    (optional) Degrees to rotate the overlayed image.
      * @param int             $transparentColor (optional) RGB of the overlay image transparency color.
      * @return boolean
-     * @throws Exception\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
-    public function overlay(\GdImage $dstImg, string|\GdImage $fileToOverlay, int|float|string $mergePercentage = null, 
-            int|float|string $overlayOptions = null, $overlayAlign = null, int|float|string $overlayRotate = 0, 
+    public function overlay(GdImage $dstImg, string|GdImage $fileToOverlay, int|float|string $mergePercentage = 0, 
+            int|float|string $overlayOptions = null, int|float|string $overlayAlign = MediaConst::ALIGN_NONE, int|float|string $overlayRotate = 0, 
             int|float|string $transparentColor = null) {
         if(Types::isBlank($fileToOverlay)) {
             // no overlay image specified in the overlay property.
             // Cannot overlay image: no overlay image specified.
-            throw new Exception\InvalidArgumentException(MediaConst::T_NO_OVERLAY_IMAGE, MediaConst::E_NO_OVERLAY_IMAGE);
+            throw new InvalidArgumentException(MediaConst::T_NO_OVERLAY_IMAGE, MediaConst::E_NO_OVERLAY_IMAGE);
         }
 
-        if($this->_isGdResource($fileToOverlay)) {
-            $ovImg = $fileToOverlay;
-        }
-        else {
+        $phpErrorHandler = new PhpErrorHandler();
+        
+        if(! $fileToOverlay instanceof GdImage) {
             $importer = new ImportImage();
+            $importer->setLogging($this->getLogging());
             $ovImg = $importer->import($fileToOverlay);
         }
-
+            
         $dstWidth = imagesx($dstImg);
         $dstHeight = imagesy($dstImg);
 
         if(null !== $transparentColor) {
-//            if(false === $this->setTransparentColor($ovImg, $transparentColor)) {
-//                // T_OVERLAY_CANNOT_SET_TRANSPARENT = 'cannot set the transparency color.';
-//                // Cannot overlay image: no overlay image specified.
-//                throw new Exception\InvalidArgumentException(MediaConst::T_OVERLAY_CANNOT_SET_TRANSPARENT, MediaConst::E_OVERLAY_TRANSPARENT);
-//            }
+            if(false === $this->getGd()->setTransparentColor($ovImg, $transparentColor)) {
+                // T_OVERLAY_CANNOT_SET_TRANSPARENT = 'cannot set the transparency color.';
+                // Cannot overlay image: no overlay image specified.
+                throw new InvalidArgumentException(MediaConst::T_OVERLAY_CANNOT_SET_TRANSPARENT, MediaConst::E_OVERLAY_TRANSPARENT);
+            }
         }
 
-        if(null !== $overlayRotate) {
-            $ovImg = $this->_rotate($ovImg, $overlayRotate, $dstWidth, $dstHeight);
+        $degrees = is_numeric($overlayRotate) ? intval($overlayRotate) : null;
+        if(! is_int($degrees)) {
+            $var = Types::getVartype($overlayRotate);
+            throw new InvalidArgumentException("Invalid overlay rotate degrees value '{$var}'", MediaConst::E_TYPE_MISMATCH);
         }
-
+        if($degrees) {
+            $obj = new Rotate();
+            $obj->setLogging($this->getLogging());
+            $ovImg = $obj->rotate($ovImg, $degrees);
+        }
         $ovWidth = imagesx($ovImg);
         $ovHeight = imagesy($ovImg);
 
@@ -86,7 +95,7 @@ class Overlay extends Common {
                 $newHeight = $dstHeight;
                 $newWidth = ceil($ry * $ovWidth);
             }
-            $ovImg = $this->_resizeImage($ovImg, $newWidth, $newHeight);
+            $ovImg = $this->getGd()->resizeImage($ovImg, $newWidth, $newHeight);
             if(false === $ovImg) {
                 return false;
             }
@@ -95,28 +104,24 @@ class Overlay extends Common {
         }
 
         if($overlayOptions & MediaConst::IMG_OPTION_OVERLAY_REPEAT) {
-            if(method_exists($this, '_repeat')) {
-                $dstImg = $this->_repeat($dstImg, $ovImg);
-            }
-            $res = true;
+            $res = $this->getGd()->repeat($dstImg, $ovImg);
         }
         else {
             if(null === $overlayAlign) {
                 $x = $y = 0;
             }
             else {
-                $imageResize = new ImageResize();
+                $imageResize = new ImageResizeAlign();
                 list($x, $y, $srcX, $srcY) = $imageResize->align($overlayAlign, $dstWidth, $dstHeight, $ovWidth, $ovHeight);
             }
 
-            $phpErrorHandler = new PhpErrorHandler();
             /**
              * A merge value of zero means do NOTHING
              * A merge value of 100 overlays the file AS-IS; no transparency.
              */
             $mergePct = is_numeric($mergePercentage) ? intval($mergePercentage) : null;
-            if(null !== $mergePct && 100 !== $mergePct) {
-                $this->_colorize($ovImg, $mergePct);
+            if(null !== $mergePct && $mergePct > 0 && 100 !== $mergePct) {
+                $this->getGd()->colorize($ovImg, $mergePct);
             }
 
             $res = $phpErrorHandler->call(function()use(
@@ -144,85 +149,12 @@ class Overlay extends Common {
                 $msg = $phpErrorHandler->getErrorMsg(sprintf(MediaConst::T_PHP_FUNCTION_FAILED, "imagecopy"), "cannot copy overlay image");
                 imagedestroy($ovImg);
                 // a PHP image function has failed
-                throw new Exception\RuntimeException($msg, MediaConst::E_PHP_FUNCTION_FAILED);
+                throw new RuntimeException($msg, MediaConst::E_PHP_FUNCTION_FAILED);
             }
         }
-        imagedestroy($ovImg);
+        $phpErrorHandler->call(function()use($ovImg){
+            imagedestroy($ovImg);
+        });
         return $res;
     }
-
-    /**
-     * Rotate an image n degrees.
-     * @param resource  $img          GD image resource to rotate.
-     * @param int       $rotateDegrees  # degrees to rotate image.
-     * @param int       $dstWidth       (optional) If desired, the dimensions of the rectangle in which the rotated image must fit.
-     * @param int       $dstHeight      (optional) ^ ^ ^
-     *
-     * @return resource  Returns the rotated image or original image if $degrees is ZERO.
-     *
-     * @throws Exception\InvalidArgumentException
-     */
-    protected function _rotate($img, $rotateDegrees, $dstWidth = null, $dstHeight = null) {
-        $degrees = is_numeric($rotateDegrees) ? intval($rotateDegrees) : null;
-        if(! is_int($degrees)) {
-            $var = Types::getVartype($rotateDegrees);
-            throw new Exception\InvalidArgumentException("Invalid overlay rotate degrees value '{$var}'", MediaConst::E_TYPE_MISMATCH);
-        }
-        if(abs($degrees) > 360) {
-            // $var = Types::getVartype($rotateDegrees);
-            // throw new Exception\InvalidArgumentException("Invalid overlay value '{$var}'", MediaConst::E_INVALID_ROTATE_PARAM);
-        }
-        $obj = new Rotate();
-        $finalImg = $obj->rotate($img, $degrees, $dstWidth, $dstHeight);
-        if(false === $finalImg) {
-            // T_PHP_FUNCTION_FAILED = image function '%s' failed
-            $msg = $phpErrorHandler->getErrorMsg(sprintf(MediaConst::T_PHP_FUNCTION_FAILED, "imagecopy"), "cannot copy overlay image");
-            imagedestroy($img);
-            // a PHP image function has failed
-            throw new Exception\RuntimeException($msg, MediaConst::E_PHP_FUNCTION_FAILED);
-        }
-        return $finalImg;
-    }
-
-    /**
-     * Applies fading to an image 0 to 100.
-     * @param resource  $img
-     * @param int       $percent
-     * @throws Exception\RuntimeException
-     */
-    protected function _colorize($img, $percent) {
-        $phpErrorHandler = new PhpErrorHandler();
-        $res = $phpErrorHandler->call(function()use($img){
-            return imagealphablending($img, false);
-        });
-        if(! $res) {
-            $function = 'imagealphablending';
-        }
-        else {
-            $res = $phpErrorHandler->call(function()use($img){
-                return imagesavealpha($img, true);
-            });
-            if(! $res) {
-                $function = 'imagesavealpha';
-            }
-            else {
-                $res = $phpErrorHandler->call(function()use($img, $percent){
-                    // Get a percent value 0 to 100
-                    $abs = abs(intval($percent));
-                    $pct = $abs ? (($abs - 1) % 100 + 1) : $abs;
-                    $alpha = 127 * (1 - $pct / 100);
-                    return imagefilter($img, IMG_FILTER_COLORIZE, 0, 0, 0, $alpha);
-                });
-                if($res) {
-                    return true;
-                }
-                $function = 'imagefilter';
-            }
-        }
-        // T_PHP_FUNCTION_FAILED = image function '%s' failed
-        $msg = $phpErrorHandler->getErrorMsg(sprintf(MediaConst::T_PHP_FUNCTION_FAILED, $function), "cannot apply image fading");
-        // a PHP image function has failed
-        throw new Exception\RuntimeException($msg, MediaConst::E_PHP_FUNCTION_FAILED);
-    }
-
 }

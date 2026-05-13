@@ -89,7 +89,7 @@ class Iptc {
         }
 
         // Throw an error if the image file invalid.
-        $dummy = $this->_getImageProperties($sourceFile, true);
+        $dummy = $this->_getImgProperties($sourceFile);
 
         // Convert IPTC tags into binary code
         $data = [];
@@ -156,7 +156,7 @@ class Iptc {
         }
 
         // Throw an error if the image file invalid.
-        $properties = $this->_getImageProperties($file, true);
+        $properties = $this->_getImgProperties($file);
 
         $info = $properties['info'];
 
@@ -208,7 +208,7 @@ class Iptc {
      * @return array
      * @throws Exception\InvalidArgumentException
      */
-    protected function _getImageProperties($file, $throw = true) {
+    protected function _getImgProperties($file) {
         $imgPropertiesObj = new ImageProperties();
         try {
             $properties = $imgPropertiesObj($file);
@@ -222,10 +222,7 @@ class Iptc {
             $errorMsg = $ex->getCode();
             $properties = [];
         }
-        if($throw) {
-            throw new Exception\InvalidArgumentException($errorMsg, $code);
-        }
-        return $properties;
+        throw new Exception\InvalidArgumentException($errorMsg, $code);
     }
 
     /**

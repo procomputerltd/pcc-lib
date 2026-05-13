@@ -15,149 +15,104 @@ for more details.
 */
 namespace Procomputer\Pcclib\Media;
 
-use Procomputer\Pcclib\PhpErrorHandler;
-use Procomputer\Pcclib\Types;
+use Procomputer\Pcclib\Media\MemoryLog;
+use Procomputer\Pcclib\Media\Library\Gd\Gd;
 
 /**
  * Common class extended by Media/image classes.
  */
 class Common {
 
+    use Memory;
+    
+    /**
+     * The Gd graphics library class.
+     * @var Gd
+     */
+    protected $_gd;
+    
+    /**
+     * 
+     * @var string
+     */
     public $lastErrorMsg = '';
+    
+    /**
+     * 
+     * @var mixed
+     */
     public $lastErrorCode = 0;
 
     /**
-     * Resizes an image and returns a new resized GD image resource.
-     *
-     * @param resource  $img        GD Image resource to resize
-     * @param int       $width      The width to resize the image.
-     * @param int       $height     The height to resize the image.
-     * @param int       $srcWidth   $srcWidth and $srcHeight specify the dimensions of the section of the image to resize. Default is entire image.
-     * @param int       $srcHeight  (see $srcWidth)
-     * @param int       $srcX       $srcX and $srcY specify the top-left coordinates of the section of the image to resize. Default is 0,0 top-left corner.
-     * @param int       $srcY       (see $srcX)
-     * @return resource Returns the resized GD Image resource
-     * @throws Exception\RuntimeException
+     * When this property is true memory usage is logged.
+     * @var int|bool
      */
-    protected function _resizeImage($img, $width, $height, $srcWidth = null, $srcHeight = null, $srcX = 0, $srcY = 0) {
-        $phpErrorHandler = new PhpErrorHandler();
-        $tempImg = $phpErrorHandler->call(function()use($width, $height){
-            return imagecreatetruecolor($width, $height);
-        });
-        if(false === $tempImg) {
-            $function = 'imagecreatetruecolor';
-        }
-        else {
-            $res = $phpErrorHandler->call(function()use($tempImg){
-                return imagecolorallocatealpha($tempImg, 0, 0, 0, 127);
-            });
-            if(false === $res) {
-                $function = 'imagecolorallocate';
-            }
-            else {
-                $res = $phpErrorHandler->call(function()use($tempImg, $res){
-                    return imagefill($tempImg, 0, 0, $res);
-                });
-                if(false === $res) {
-                    $function = 'imagefill';
-                }
-                else {
-                    if(null === $srcWidth) {
-                        $srcWidth = imagesx($img);
-                    }
-                    if(null === $srcHeight) {
-                        $srcHeight = imagesy($img);
-                    }
-                    $res = $phpErrorHandler->call(function()use($tempImg, $img, $width, $height, $srcWidth, $srcHeight, $srcX, $srcY){
-                        return imagecopyresampled($tempImg, $img, 0, 0, $srcX, $srcY, $width, $height, $srcWidth, $srcHeight);
-                    });
-                    if(false !== $res) {
-                        return $tempImg;
-                    }
-                    $function = 'imagecopyresampled';
-                }
-            }
-        }
-        // a PHP image function has failed
-        $code = MediaConst::E_PHP_FUNCTION_FAILED;
-        // image function '%s' failed
-        $errMsg = sprintf(MediaConst::T_PHP_FUNCTION_FAILED, $function);
-        $msg = $phpErrorHandler->getErrorMsg("a unknown error occurred", $errMsg);
-        $this->lastErrorMsg = $errorMsg;
-        $this->lastErrorCode = $code;
-        if($this->_isGdResource($tempImg)) {
-            $this->_imagedestroy($tempImg);
-        }
-        throw new Exception\RuntimeException($errorMsg, $code);
+    protected $_logging = false;
+
+    /**
+     * 
+     * @var array
+     */
+    protected $_options;
+    
+    /**
+     * Constructor
+     * @param array $options (optional) Options.
+     */
+    public function __construct(array $options = []) {
+        $this->_options = $options;
+        $this->_gd = new Gd();
+    }
+    
+    /**
+     * 
+     * @return Gd
+     */
+    public function getGd(): Gd {
+        return $this->_gd;
+    }
+    
+    /**
+     * Returns logging property.
+     * @return int|bool
+     */
+    public function getLogging(): int|bool {
+        return $this->_logging;
     }
 
     /**
-     * Frees (destroys) an image resource.
-     * @param resource $resource
-     * @return boolean Returns TRUE if success else FALSE
+     * Sets logging property.
+     * @param int|bool $logging
+     * @return $this
      */
-    protected function _imagedestroy($resource) {
-        if(! $this->_isGdResource($resource)) {
-            return false;
-        }
-        // PhpErrorHandler traps php errors if any and saves to $phpErrHandler->lastError
-        $phpErrHandler = new PhpErrorHandler();
-        return $phpErrHandler->call(function()use($resource){ return imagedestroy($resource); });
+    public function setLogging(int|bool $logging) {
+        $this->_logging = $logging;
+        return $this;
     }
-
+    
     /**
-     * Determines whether the variable represents a GD graphics resource.
-     * @param mixed $resource
-     * @return boolean Returns TRUE if the variable is an open GD resource else FALSE.
+     * Formats a number to represent BYTES like 12M, 12K, 12G, 12T
+     * @param float|int|string $size
+     * @param int              $precision
+     * @return type
      */
-    protected function _isGdResource($resource) {
-        if(is_resource($resource) && 'resource' === gettype($resource)) {
-            $type = get_resource_type($resource);
-            if(is_string($type) && 'gd' === strtolower($type)) {
-                return true;
-            }
-        }
-        return false;
+    protected function _formatBytes(int|float|string $size, int $precision = 2) {
+        $base = log((float)$size, (float)1024);
+        $floor = floor($base);
+        $b = (float)($base - $floor);
+        $pow = pow((float)1024, $b);
+        $num = round($pow, $precision);
+        $suffixes = array('', 'K', 'M', 'G', 'T');
+        return $num . ' '. $suffixes[(int)$floor];
     }
-
+    
     /**
-     * Set the color that represents transparent
-     * @param resource $im     GD image resource.
-     * @param int      $color  RGB color value.
-     * @return int|boolean The identifier of the new (or current, if none is specified) transparent color is returned. If color is not specified, and the image has no transparent color, the returned identifier will be -1.
+     * 
+     * @param MemoryLog $memoryLog
+     * @return void
      */
-    public function setTransparentColor($im, $color) {
-        $color = is_numeric($color) ? intval($color)
-            : (Types::isBlank($color) ? null : hexdec((string)$color));
-        if(null === $color) {
-            return false;
-        }
-        $i = intval($color);
-        $r = ($i >> 16) & 0xff;
-        $g = ($i >> 8) & 0xff;
-        $b = $i & 0xff;
-        $color = imagecolorexact($im, $r, $g, $b);
-        if(! $color) {
-            return false;
-        }
-        $res = imagecolortransparent($im, $color);
-        return $res;
-    }
-
-    /**
-     * Returns the color that represents transparent
-     * @param resource $im     GD image resource.
-     * @return int|boolean The transparent color is returned.
-     */
-    public function getTransparentColor($im, $default = -1) {
-        $res = imagecolortransparent($im);
-        if(false === $res) {
-            return false;
-        }
-        if(empty($res) || -1 == $res) {
-            $res = $default;
-        }
-        return $res;
+    protected function _logMemUse(MemoryLog $memoryLog, $arg2, $arg3 = null) {
+        $size = is_object($arg3) ? (imagesx($arg3) * imagesy($arg3)) : $arg3;
+        $memoryLog->log($arg2, $size);
     }
 }
-

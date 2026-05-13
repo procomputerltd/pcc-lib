@@ -16,7 +16,6 @@ for more details.
 */
 namespace Procomputer\Pcclib\Media;
 
-use Procomputer\Pcclib\PhpErrorHandler;
 use Procomputer\Pcclib\Types;
 use Procomputer\Pcclib\FileSystem;
 
@@ -26,57 +25,38 @@ use Procomputer\Pcclib\FileSystem;
     Author      : James R. Steel
     Description : PHP Software by Pro Computer: Common methods used by Media/Image classes.
 */
-class ImportImage {
-
-    public $lastErrorMsg = '';
-    public $lastErrorCode = 0;
-
-    /**
-     * Void constructor
-     */
-    public function __construct() {
-    }
+class ImportImage extends Common {
 
     /**
      * Creates an image resource from a file.
      *
      * @param string  $file     File path from which to create image.
      * @param int     $phpType  (optional) PHP 'IMAGETYPE_*' constant.
-     * @param boolean $throw    (optional) When TRUE, throw an exception(default) when getimagesize() function fails,
-     *                                     otherwise when FALSE return the image properties array in which the GD or
-     *                                     other error number is stored in the 'errno' key and error message is stored
-     *                                     in the 'error' key of the returned array.
-     *
      * @return mixed Returns the file path name to which the image is written or FALSE on error.
      */
-    public function __invoke(string $file, int $phpType = null, bool $throw = true) {
-        return $this->import($file, $phpType, $throw);
+    public function __invoke(string $file, int $phpType = null) {
+        return $this->import($file, $phpType);
     }
 
     /**
      * Creates an image resource from a file.
      *
-     * @param string  $file     File path from which to create image.
-     * @param int     $phpType  (optional) PHP 'IMAGETYPE_*' constant.
-     * @param boolean $throw    (optional) When TRUE, throw an exception(default) when getimagesize() function fails,
-     *                                     otherwise when FALSE return the image properties array in which the GD or
-     *                                     other error number is stored in the 'errno' key and error message is stored
-     *                                     in the 'error' key of the returned array.
-     *
+     * @param string  $file     Path of file from which to create image.
+     * @param int     $phpType  (optional) PHP 'IMAGETYPE_*' constant. If unspecified the ImageProperties() is used to determine type.
      * @return resource|bool Returns an image resource identifier on success, FALSE on errors.
      */
-    public function import(string $file, int $phpType = null, bool $throw = true) {
+    public function import(string $file, int $phpType = null) {
         /**
          * Attempt to fetch image properties from path if specified..
          * NOTICE: class ImageProperties exposes __invoke() function so may be called as function.
          */
         $imgObj = new ImageProperties();
-        $properties = $imgObj($file, $throw);
+        $properties = $imgObj($file);
         if($properties['errno']) {
-            $this->lastErrorMsg = $properties['error'];
             $this->lastErrorCode = $properties['errno'];
-            if($throw) {
-                throw new Exception\RuntimeException($this->lastErrorMsg, $this->lastErrorCode);
+            $this->lastErrorMsg = $properties['error'] ?? '';
+            if(empty($this->lastErrorMsg)) {
+                $this->lastErrorMsg = "cannot import image: an unknown error ocurred.";
             }
             return false;
         }
@@ -85,67 +65,94 @@ class ImportImage {
             $phpType = $properties["type"];
         }
 
-        $gdFunctions = array(
-            IMAGETYPE_JPEG => "imagecreatefromjpeg",
-            IMAGETYPE_GIF => "imagecreatefromgif",
-            IMAGETYPE_PNG => "imagecreatefrompng",
-            MediaConst::IMAGETYPE_PCC_GD2 => "imagecreatefromgd2");
+        $gdFunctions = $this->getSupportedImageFunctions();
+        /* IMAGETYPE_JPEG = imagecreatefromjpeg
+           IMAGETYPE_GIF  = imagecreatefromgif
+           IMAGETYPE_PNG  = imagecreatefrompng
+           IMAGETYPE_WEBP = imagecreatefromwebp
+           IMAGETYPE_BMP  = imagecreatefrombmp
+         */
         if(!isset($gdFunctions[$phpType])) {
-            // invalid image type
-            $typeName = ImageType::getImageType($phpType, true);
-            if(empty($typeName)) {
-                $typeName = "#" . Types::getVartype($phpType);
-            }
-            // not a supported image type '%s'
-            $msg = sprintf(MediaConst::T_BAD_IMAGE_TYPE, $typeName);
-            if(! empty($properties["mime"])) {
-                $parts = explode('/', $properties["mime"]);
-                if(! empty($parts)) {
-                    try {
-                        $desc = FileSystem::getFileExtensionDescription(array_pop($parts));
-                        if(! empty($desc)) {
-                            $msg .= ' - ' . $desc;
-                        }
-                    } catch (Throwable $ex) {
-                    }
-                }
-            }
-            throw new Exception\RuntimeException($msg, MediaConst::E_BAD_TYPE);
+            $this->lastErrorCode = MediaConst::E_BAD_TYPE;
+            $this->lastErrorMsg = $this->_getBadPhpTypeErrorMsg($phpType, $properties["mime"] ?? '');
+            return false;
         }
 
         $imageCreateFunction = $gdFunctions[$phpType];
         if(!function_exists($imageCreateFunction)) {
             // cannot manipulate image as image function '%s' is not available
             $msg = sprintf(MediaConst::T_NO_FUNCTION, $imageCreateFunction);
-            throw new Exception\RuntimeException($msg, MediaConst::E_NO_FUNCTION);
+            $this->lastErrorMsg = $msg;
+            $this->lastErrorCode = MediaConst::E_NO_FUNCTION;
+            return false;
         }
+        
         // imagecreatefromjpeg() may issue a 'recoverable error' warning or notice that indicates
         // premature end of JPEG file found. Use the '@' error control operator block output.
         // Sample error output:
         // Notice: imagecreatefromjpeg() [function.imagecreatefromjpeg]: gd-jpeg, libjpeg:
         // recoverable error: Premature end of JPEG file in <pathname.php> on line 416
-        $phpErrorHandler = new PhpErrorHandler();
-        $srcImg = $phpErrorHandler->call(function()use($imageCreateFunction, $file){
-            return $imageCreateFunction($file);
-        });
-        if(! $srcImg) {
+        $gdImage = $this->getGd()->imageCreateFromFile($imageCreateFunction, $file);
+        if(! $gdImage) {
             $typeName = ImageType::getImageType($phpType, true);
             if(empty($typeName)) {
                 $typeName = "#" . Types::getVartype($phpType);
             }
-            $msg = $phpErrorHandler->getErrorMsg("{$imageCreateFunction}() function failed)", "cannot create image using '$imageCreateFunction' for type '{$typeName}'");
+            $msg = $this->_phpErrorHandler->getErrorMsg("{$imageCreateFunction}() function failed", 
+                "cannot create image using '$imageCreateFunction' for type '{$typeName}'");
             // a PHP image function has failed
             $code = MediaConst::E_PHP_FUNCTION_FAILED;
             $this->lastErrorMsg = $msg;
             $this->lastErrorCode = $code;
-            if($throw) {
-                throw new Exception\RuntimeException($msg, $code);
-            }
             return false;
         }
-
-        imagealphablending($srcImg, true);
-        imagecolortransparent($srcImg, imagecolorallocate($srcImg, 255, 255, 255));
-        return $srcImg;
+        return $gdImage;
+    }
+    
+    /**
+     * Returns supported export image types.
+     * @return array
+     */
+    public function getSupportedImageFunctions(): array {
+        $gdFunctions = array(
+            "IMAGETYPE_JPEG" => "imagecreatefromjpeg",
+            "IMAGETYPE_GIF" => "imagecreatefromgif",
+            "IMAGETYPE_PNG" => "imagecreatefrompng",
+            "IMAGETYPE_WEBP" => "imagecreatefromwebp",
+            "IMAGETYPE_BMP" => "imagecreatefrombmp");
+        $return = [];
+        foreach($gdFunctions as $type => $function) {
+            if(defined($type)) {
+               $return[constant($type)] = $function;
+            }
+        }
+        $return[MediaConst::IMAGETYPE_PCC_GD2] = "imagecreatefromgd2";
+        return $return;
+    }
+    
+    private function _getBadPhpTypeErrorMsg($phpType, $mimeType = '') {
+        // invalid image type
+        $typeName = ImageType::getImageType($phpType, true);
+        if(empty($typeName)) {
+            $typeName = "#" . Types::getVartype($phpType);
+        }
+        // not a supported image type '%s'
+        return sprintf(MediaConst::T_BAD_IMAGE_TYPE, $typeName) . $this->_getMimeTypeDescription($mimeType);
+    }
+    
+    private function _getMimeTypeDescription($mimeType) {
+        if(! empty($mimeType)) {
+            $parts = explode('/', $mimeType);
+            if(! empty($parts)) {
+                try {
+                    $desc = FileSystem::getFileTypeDescription(array_pop($parts));
+                    if(! empty($desc)) {
+                        return ' - ' . $desc;
+                    }
+                } catch (Throwable $ex) {
+                }
+            }
+        }
+        return '';
     }
 }
