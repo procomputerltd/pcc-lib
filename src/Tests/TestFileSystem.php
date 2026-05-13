@@ -235,7 +235,7 @@ class TestFileSystem extends TestCommon {
                     [$bogusFile]
                 ],
             ],
-            'getFileExtensionDescription' => [
+            'getFileTypeDescription' => [
                 'params' => [
                     ['png'],
                     ['.txt'],
