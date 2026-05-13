@@ -17,7 +17,7 @@ namespace Procomputer\Pcclib\Html;
 /**
  * Builds an HTML hyperlink (aka anchor) element.
  */
-class Hyperlink extends Common {
+class   Hyperlink extends Common {
 
     /**
      * Create an HTML anchor element. __invoke lets you call this object like a function.
@@ -34,7 +34,7 @@ class Hyperlink extends Common {
     }
 
     /**
-     * Create an HTML anchor element.
+     * Create an HTML anchor element. NOTE: inner text is not encoded/escaped.
      * @param string  $href         Value for 'href' attribute.
      * @param string  $innerScript  (optional) Anchor inner text value.
      * @param array   $attributes   (optional) Element attributes.
