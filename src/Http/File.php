@@ -21,7 +21,18 @@ class File {
     private $_size = 0;
     private $_fullPath = '';
     private $_errorMessage = '';
+    private $_properties = [];
 
+    private $_map = [
+        'name'         => 'Name',
+        'type'         => 'Type',
+        'size'         => 'Size',
+        'tmp_name'     => 'TmpName',
+        'error'        => 'Error',
+        'full_path'    => 'FullPath',
+        'errorMessage' => 'ErrorMessage'
+    ];
+    
     /**
      *
      * @param array $properties
@@ -30,23 +41,14 @@ class File {
         if(null === $properties) {
             return;
         }
-        $map = [
-            'name'         => 'Name',
-            'tmp_name'     => 'TmpName',
-            'type'         => 'Type',
-            'error'        => 'Error',
-            'size'         => 'Size',
-            'full_path'    => 'FullPath',
-            'errorMessage' => 'ErrorMessage'
-        ];
         if(is_array($properties)) {
             foreach($properties as $name => $value) {
-                $set = 'set' . $map[$name];
+                $set = 'set' . $this->_map[$name];
                 $this->$set($value);
             }
         }
         else {
-            foreach($map as $m) {
+            foreach($this->_map as $m) {
                 $get = 'get' . $m;
                 $set = 'set' . $m;
                 $this->$set($properties->$get());
@@ -54,46 +56,17 @@ class File {
         }
     }
 
-    public function getMissingProperties() {
-        $missing = [];
-        foreach(['name' => $this->getName(), 'tmp_name' => $this->getTmpName()] as $name => $value) {
+    public function isValid() {
+        foreach([$this->getName(), $this->getType(), $this->getSize(), $this->getTmpName()] as $value) {
             if(Types::isBlank($value)) {
-                $missing[] = $name;
+                return false;
             }
         }
-        return $missing;
+        return true;
     }
-
+    
     public function getName() {
         return $this->_name;
-    }
-
-    public function getTmpName() {
-        return $this->_tmpName;
-    }
-
-    public function getType() {
-        return $this->_type;
-    }
-
-    public function getSize() {
-        return $this->_size;
-    }
-
-    public function getFullPath() {
-        return $this->_fullPath;
-    }
-
-    public function getError() {
-        return $this->_error;
-    }
-
-    public function getErrorMessage() {
-        return $this->_errorMessage;
-    }
-
-    public function getProperties() {
-        return $this->_errorMessage;
     }
 
     public function setName($name) {
@@ -101,9 +74,17 @@ class File {
         return $this;
     }
 
+    public function getTmpName() {
+        return $this->_tmpName;
+    }
+
     public function setTmpName($tmpName) {
         $this->_tmpName = $tmpName;
         return $this;
+    }
+
+    public function getType() {
+        return $this->_type;
     }
 
     public function setType($type) {
@@ -111,9 +92,17 @@ class File {
         return $this;
     }
 
+    public function getSize() {
+        return $this->_size;
+    }
+
     public function setSize($size) {
         $this->_size = $size;
         return $this;
+    }
+
+    public function getFullPath() {
+        return $this->_fullPath;
     }
 
     public function setFullPath($fullPath) {
@@ -121,15 +110,40 @@ class File {
         return $this;
     }
 
+    public function getError() {
+        return $this->_error;
+    }
+
     public function setError($error) {
         $this->_error = $error;
         return $this;
+    }
+
+    public function getErrorMessage() {
+        return $this->_errorMessage;
     }
 
     public function setErrorMessage($errorMessage) {
         $this->_errorMessage = $errorMessage;
         return $this;
     }
+    
+    public function getProperties() {
+        return $this->_properties;
+    }
 
+    public function setProperties(array $properties) {
+        $this->_properties = $properties;
+        return $this;
+    }
+
+    public function getProperty($key, $default = null) {
+        return $this->_properties[$key] ?? $default;
+    }
+
+    public function setProperty($key, $value) {
+        $this->_properties[$key] = $value;
+        return $this;
+    }
 
 }
