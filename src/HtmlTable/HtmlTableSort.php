@@ -15,6 +15,7 @@ use Procomputer\Pcclib\Types;
 use Procomputer\Pcclib\Html\Hyperlink;
 use Procomputer\Pcclib\Html\Span;
 use Procomputer\Pcclib\Html\Div;
+use RuntimeException;
 
 class HtmlTableSort {
 
@@ -60,37 +61,37 @@ class HtmlTableSort {
      * @param string $key
      * @param mixed $val
      * @return $this
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function __set(string $key, mixed $val) {
         if(strlen($prop = trim($key))) {
             $prop = strtolower($prop);
-            if(isset($this->_properties[$prop])) {
+            if(array_key_exists($prop, $this->_properties)) {
                 $this->_properties[$prop] = $val;
                 return $this;
             }
         }
         $var = Types::getVarType($key);
         $msg = "property '{$var}' not found";
-        throw new \RuntimeException($msg);
+        throw new RuntimeException($msg);
     }
 
     /**
      * Returns a property value from $this->_properties.
      * @param string $key
      * @return mixed
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function __get(string $key) : mixed {
         if(strlen($prop = trim($key))) {
             $prop = strtolower($prop);
-            if(isset($this->_properties[$prop])) {
+            if(array_key_exists($prop, $this->_properties)) {
                 return $this->_properties[$prop];
             }
         }
         $var = Types::getVarType($key);
         $msg = "property '{$var}' not found";
-        throw new \RuntimeException($msg);
+        throw new RuntimeException($msg);
     }
 
     /**

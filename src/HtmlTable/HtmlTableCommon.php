@@ -36,9 +36,11 @@ class HtmlTableCommon extends HtmlCommon {
      * @param array  $attributes (optional)
      * @param string $innerHtml  (optional)
      */
-    public function __construct(array $attributes = [], string $innerHtml = '') {
+    public function __construct(array $attributes = [], ?string $innerHtml = null) {
         $this->_attributes = $attributes;
-        $this->_innerHtml = $innerHtml;
+        if(is_string($innerHtml)) {
+            $this->_innerHtml = $innerHtml;
+        }
     }
 
     /**
