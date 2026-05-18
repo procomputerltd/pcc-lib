@@ -112,6 +112,15 @@ class MessageStore {
     }
 
     /**
+     * Returns number of messages.
+     * @param string $type (optional) Type of messages to return eg 'error', 'warning'
+     * @return array
+     */
+    public function hasMessages(string $type = 'all') : bool {
+        return (count($this->getMessages($type)) > 0) ? true : false;
+    }
+
+    /**
      * Clears messages.
      * @return ServiceCommon
      */
@@ -155,6 +164,11 @@ class MessageStore {
     }
     
     private function _resolveMessageType(string $messageType) {
+        // Normally a string message type is expected eg 'warning'
+        // If it's numeric or bool convert to 'success' or 'danger'
+        if(is_numeric($messageType) || is_bool($messageType)) {
+            return intval($messageType) ? 'danger' : 'info';
+        }
         /* Bootstrap 5.x alert classes
             alert-primary
             alert-secondary
