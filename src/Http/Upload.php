@@ -67,89 +67,52 @@ class Upload {
      * @return array Returns the processed file data.
      */
     public function importUploadedFiles(array|HttpFile $files, array $options = []) {
-        $uploadLists = $this->_resolveFiles($files, $options);
         $this->_files = [];
-        if(empty($uploadLists)) {
+        $uploadList =  ($files instanceof HttpFile) ? [$files] : (count($files) ? $this->_assembleFiles(($options['raw'] ?? false) ? $this->_convertRawFiles($files) : $files) : []);
+        if(empty($uploadList)) {
             return [];
         }
         $return = [];
-        foreach($uploadLists as $uploadList) {
-            foreach($uploadList as $fileObject) {
-                /** @var \Procomputer\Pcclib\Http\File $fileObject */
-                $error = $fileObject->getError();
-                if(MediaConst::UPLOAD_ERR_NO_FILE !== $error) {
-                    $error = $this->getUploadError($error);
-                    $errMsg = '';
-                    $filename = $fileObject->getName();
-                    if(! $error) {
-                        $tempName = $fileObject->getTmpName();
-                        if(empty($tempName)) {
-                            $error = MediaConst::UPLOAD_ERR_TMP_NAME_MISSING;
-                        }
-                        elseif(! is_file($tempName)) {
-                            $error = MediaConst::UPLOAD_ERR_TMP_FILE_NOT_FOUND;
-                        }
-                        elseif(! is_readable($tempName)) {
-                            $error = MediaConst::UPLOAD_ERR_TMP_FILE_NOT_READABLE;
-                        }
-                        if($error) {
-                            $errMsg = $this->getUploadErrorMessage($error, 'upload error encountered');
-                            if(false !== strpos($errMsg, '%s')) {
-                                $errMsg = sprintf($errMsg, $filename);
-                            }
-                        }
+        foreach($uploadList as $fileObject) {
+            /** @var \Procomputer\Pcclib\Http\File $fileObject */
+            $error = $fileObject->getError();
+            if(MediaConst::UPLOAD_ERR_NO_FILE !== $error) {
+                $error = $this->getUploadError($error);
+                $errMsg = '';
+                $filename = $fileObject->getName();
+                if(! $error) {
+                    $tempName = $fileObject->getTmpName();
+                    if(empty($tempName)) {
+                        $error = MediaConst::UPLOAD_ERR_TMP_NAME_MISSING;
                     }
-                    if(0 !== $error && ! strlen($errMsg)) {
-                        $errMsg = $this->getUploadErrorMessage($error);
-                        if(! strlen($errMsg)) {
-                            $errMsg = $this->getUploadErrorMessage(MediaConst::UPLOAD_ERR_INCOMPLETE); // The file download did not complete: an unknown error code was submitted.
-                        }
-                        elseif(false !== strpos($errMsg, '%s')) {
+                    elseif(! is_file($tempName)) {
+                        $error = MediaConst::UPLOAD_ERR_TMP_FILE_NOT_FOUND;
+                    }
+                    elseif(! is_readable($tempName)) {
+                        $error = MediaConst::UPLOAD_ERR_TMP_FILE_NOT_READABLE;
+                    }
+                    if($error) {
+                        $errMsg = $this->getUploadErrorMessage($error, 'upload error encountered');
+                        if(false !== strpos($errMsg, '%s')) {
                             $errMsg = sprintf($errMsg, $filename);
                         }
                     }
-                    $fileObject->setErrorMessage($errMsg);
-                    $return[] = $fileObject;
                 }
+                if(0 !== $error && ! strlen($errMsg)) {
+                    $errMsg = $this->getUploadErrorMessage($error);
+                    if(! strlen($errMsg)) {
+                        $errMsg = $this->getUploadErrorMessage(MediaConst::UPLOAD_ERR_INCOMPLETE); // The file download did not complete: an unknown error code was submitted.
+                    }
+                    elseif(false !== strpos($errMsg, '%s')) {
+                        $errMsg = sprintf($errMsg, $filename);
+                    }
+                }
+                $fileObject->setErrorMessage($errMsg);
+                $return[] = $fileObject;
             }
         }
         $this->_files = $return;
         return $return;
-    }
-
-    /**
-     *
-     * @param array|HttpFile $files
-     * @param array          $options (optional) Options.
-     * @return array
-     */
-    private function _resolveFiles(array|HttpFile $files, array $options = []) {
-        if($files instanceof HttpFile) {
-            return [$files->getName() => [$files]];
-        }
-        if(! count($files)) {
-            return [];
-        }
-        $uploadLists = ($options['raw'] ?? false) 
-            ? $this->_convertRawFiles($files) // 'raw' indicates the 'files' parameter is straight from $_FILES i.e. raw.
-            : $this->_assembleFiles($files);
-        foreach($uploadLists as $key => $uploadList) {
-            foreach($uploadList as $listKey => $properties) {
-                if($properties instanceof HttpFile) {
-                    $uploadList[$listKey] = $properties;
-                }
-                else {
-                    $res = $this->_validPropNames($properties);
-                    if(is_string($res)) {
-                        $msg = "the parameter that specified the uploaded file data contains invalid property name(s): '{$res}'";
-                        throw new InvalidArgumentException($msg);
-                    }
-                    $uploadList[$listKey] = new HttpFile($properties);
-                }
-            }
-            $uploadLists[$key] = $uploadList;
-        }
-        return $uploadLists;
     }
 
     /**
@@ -158,9 +121,18 @@ class Upload {
      * @return array
      */
     private function _assembleFiles(array $files) {
+        $res = $this->_validPropNames($files);
+        if(! is_string($res)) {
+            return [$files];
+        }
         $return = [];
         foreach($files as $key => $fileData) {
             if(is_array($fileData)) {
+                $res = $this->_validPropNames($fileData);
+                if(! is_string($res)) {
+                    $return[] = new HttpFile($fileData);
+                    continue;
+                }
                 foreach($fileData as $k => $properties) {
                     if(is_array($properties)) {
                         $res = $this->_validPropNames($properties);
@@ -168,15 +140,25 @@ class Upload {
                             $msg = "the parameter that specified the uploaded file data contains invalid property name(s): '{$res}'";
                             throw new InvalidArgumentException($msg);
                         }
+                        $return[] = new HttpFile($properties);
+                    }
+                    elseif($fileData instanceof HttpFile) {
+                        $return[] = $fileData;
                     }
                     else {
-                        if(! $fileData instanceof HttpFile) {
-                            $var = Types::getVartype($fileData);
-                            $msg = "the parameter that specifies the uploaded file data is invalid: expecting non-empty array or File object, got '{$var}'";
-                            throw new InvalidArgumentException($msg);
-                        }
+                        $var = Types::getVartype($fileData);
+                        $msg = "the parameter that specifies the uploaded file data is invalid: expecting non-empty array or File object, got '{$var}'";
+                        throw new InvalidArgumentException($msg);
                     }
                 }
+            }
+            elseif($fileData instanceof HttpFile) {
+                $return[] = $fileData;
+            }
+            else {
+                $var = Types::getVartype($fileData);
+                $msg = "the parameter that specifies the uploaded file data is invalid: expecting non-empty array or File object, got '{$var}'";
+                throw new InvalidArgumentException($msg);
             }
         }
         return $return;
