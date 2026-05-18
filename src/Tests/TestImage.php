@@ -16,6 +16,7 @@ for more details.
 namespace Procomputer\Pcclib\Tests;
 
 use Procomputer\Pcclib\Media;
+use Procomputer\Pcclib\Media\Image as MediaImage;
 use Procomputer\Pcclib\Media\MediaConst;
 use Procomputer\Pcclib\Types;
 use Procomputer\Pcclib\Error;
@@ -60,7 +61,7 @@ class TestImage extends TestCommon {
         
         $sourceImage = isset($valuesArray['sourceImage']) ? $valuesArray['sourceImage'] : null;
         $destImage = isset($valuesArray['destImage']) ? $valuesArray['destImage'] : null;
-        $mediaImage = new Media\Image();
+        $mediaImage = new MediaImage();
         
         try {
             $mediaImage->loadImage($sourceImage);
@@ -140,13 +141,29 @@ class TestImage extends TestCommon {
      * @param array $options
      * @return string Returns HTML table script.
      */
-    protected function _buildOptionsTable(Media\Image $mediaImage, $options) {
+    protected function _buildOptionsTable(MediaImage $mediaImage, $options) {
         
-        $defaults = $mediaImage->getDefaultOptions();
+        $properties = [
+            'alignment' => $mediaImage->alignment,
+            'basename' => $mediaImage->basename,
+            'height' => $mediaImage->height,
+            'imagefilter' => $mediaImage->imagefilter,
+            'interlace' => $mediaImage->interlace,
+            'options' => $mediaImage->options,
+            'overlayalign' => $mediaImage->overlayalign,
+            'overlayfile' => $mediaImage->overlayfile,
+            'overlaymergepct' => $mediaImage->overlaymergepct,
+            'overlayrotate' => $mediaImage->overlayrotate,
+            'overlaytranscolor' => $mediaImage->overlaytranscolor,
+            'phptype' => $mediaImage->phptype,
+            'quality' => $mediaImage->quality,
+            'sizing' => $mediaImage->sizing,
+            'width' => $mediaImage->width,
+        ];
         $rows = ['<table>'];
         $rows[] = '    <tr><th>OPTION NAME</th><th>SETTING</th><th>VALUE</th></tr>';
         $template = '    <tr><td>%s</td><td>%s</td><td>%s</td></tr>';
-        foreach($defaults as $key => $val) {
+        foreach($properties as $key => $val) {
             if(isset($options[$key])) {
                 $val = $options[$key];
             }
@@ -272,7 +289,7 @@ class TestImage extends TestCommon {
         $table = [
             MediaConst::IMG_OPTION_OVERWRITE => 'IMG_OPTION_OVERWRITE',
             MediaConst::IMG_OPTION_RENAME => 'IMG_OPTION_RENAME',
-            MediaConst::IMG_OPTION_ADD_FILE_EXTENSION => 'IMG_OPTION_ADD_FILE_EXTENSION',
+            MediaConst::IMG_OPTION_OMIT_FILE_EXTENSION => 'IMG_OPTION_OMIT_FILE_EXTENSION',
             MediaConst::IMG_OPTION_OVERLAY_BEFORE_FILTER => 'IMG_OPTION_OVERLAY_BEFORE_FILTER',
             MediaConst::IMG_OPTION_OVERLAY_AFTER_FILTER => 'IMG_OPTION_OVERLAY_AFTER_FILTER',
             MediaConst::IMG_OPTION_OVERLAY_SIZE_TO_FIT => 'IMG_OPTION_OVERLAY_SIZE_TO_FIT',
