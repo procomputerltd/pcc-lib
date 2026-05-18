@@ -298,7 +298,7 @@ class Image Extends Common {
             $identical = false;
         }
         if($identical) {
-            if($this->options & MediaConst::IMG_OPTION_ADD_FILE_EXTENSION) {
+            if(! ($this->options & MediaConst::IMG_OPTION_OMIT_FILE_EXTENSION)) {
                 // Add a file extension ONLY if the file has no extension.
                 $path = $this->_addImageTypeFileExtension($destFile, $fromPhpType, DIRECTORY_SEPARATOR);
             }
@@ -429,7 +429,7 @@ class Image Extends Common {
             $phpType = $fromPhpType;
         }
 
-        if($this->options & MediaConst::IMG_OPTION_ADD_FILE_EXTENSION) {
+        if(!($this->options & MediaConst::IMG_OPTION_OMIT_FILE_EXTENSION)) {
             // Add a file extension ONLY if the file has no extension.
             $destFile = $this->_addImageTypeFileExtension($destFile, $phpType, DIRECTORY_SEPARATOR);
         }

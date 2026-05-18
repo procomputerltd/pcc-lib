@@ -25,7 +25,7 @@ class MediaConst {
      */
     const IMG_OPTION_OVERWRITE = 1; // Attempt to overwrite file if exists.
     const IMG_OPTION_RENAME = 2;    // Attempt to save file as different name if exists.
-    const IMG_OPTION_ADD_FILE_EXTENSION = 4; // Automatically append the file extension matching the file type.
+    const IMG_OPTION_OMIT_FILE_EXTENSION = 4; // Do not automatically append the file extension matching the file type.
     const IMG_OPTION_OVERLAY_BEFORE_FILTER = 8;//When saving/resizing, merge an image over this image.
     const IMG_OPTION_OVERLAY_AFTER_FILTER = 16; // When saving/resizing, merge an image over this image.
     const IMG_OPTION_OVERLAY_SIZE_TO_FIT = 32; // Resize the overlay image if it's larger X or Y than the source image.
