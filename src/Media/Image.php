@@ -29,22 +29,54 @@ use Procomputer\Pcclib\Media\MemoryLog;
  * Image manipulation class used to resize images and overlay images with watermark transparency and/or rotation.
  */
 /**
- * @method string getAlignment(int $arg)
- * @method string getBasename(string $arg)
- * @method string getHeight(int $arg)
- * @method string getImagefilter(string $arg)
- * @method string getInterlace(string $arg)
- * @method string getOptions(array $arg)
- * @method string getOverlayalign(int $arg)
- * @method string getOverlayfile(string $arg)
- * @method string getOverlaymergepct(int $arg)
- * @method string getOverlayrotate(int $arg)
- * @method string getOverlaytranscolor(int $arg)
- * @method string getPhptype(int $arg)
- * @method string getQuality(int $arg)
- * @method string getSizing(int $arg)
- * @method string getWidth(int $arg)
- */
+ * @method int    getAlignment()
+ * @method string getBasename()
+ * @method int    getHeight()
+ * @method string getImagefilter()
+ * @method string getInterlace()
+ * @method array  getOptions()
+ * @method int    getOverlayalign()
+ * @method string getOverlayfile()
+ * @method int    getOverlaymergepct()
+ * @method int    getOverlayrotate()
+ * @method string getOverlaytranscolor()
+ * @method int    getPhptype()
+ * @method int    getQuality()
+ * @method int    getSizing()
+ * @method string getWidth()
+ * 
+ * @method this setAlignment(int $arg)
+ * @method this setBasename(string $arg)
+ * @method this setHeight(int $arg)
+ * @method this setImagefilter(string $arg)
+ * @method this setInterlace(string $arg)
+ * @method this setOptions(array $arg)
+ * @method this setOverlayalign(int $arg)
+ * @method this setOverlayfile(string $arg)
+ * @method this setOverlaymergepct(int $arg)
+ * @method this setOverlayrotate(int $arg)
+ * @method this setOverlaytranscolor(int $arg)
+ * @method this setPhptype(int $arg)
+ * @method this setQuality(int $arg)
+ * @method this setSizing(int $arg)
+ * @method this setWidth(int $arg)
+ * 
+ * @property string alignment
+ * @property string basename
+ * @property string height
+ * @property string imagefilter
+ * @property string interlace
+ * @property string options
+ * @property string overlayalign
+ * @property string overlayfile
+ * @property string overlaymergepct
+ * @property string overlayrotate
+ * @property string overlaytranscolor
+ * @property string phptype
+ * @property string quality
+ * @property string sizing
+ * @property string width
+*/
 class Image Extends Common {
 
     /**
@@ -142,13 +174,14 @@ class Image Extends Common {
     /**
      * Sets a property value.
      * @param string $key
-     * @param mixed $val
+     * @param mqixed $val
      * @return $this
      * @throws RuntimeException
      */
     public function __set(string $key, mixed $val) {
-        if(property_exists($this, $key)) {
-            $this->$key = $val;
+        $lcKey = strtolower($key);
+        if(property_exists($this, $lcKey)) {
+            $this->$lcKey = $val;
             return $this;
         }
         $var = Types::getVarType($key);
@@ -163,8 +196,9 @@ class Image Extends Common {
      * @throws RuntimeException
      */
     public function __get(string $key) : mixed {
-        if(property_exists($this, $key)) {
-            return $this->$key;
+        $lcKey = strtolower($key);
+        if(property_exists($this, $lcKey)) {
+            return $this->$lcKey;
         }
         $var = Types::getVarType($key);
         trigger_error("Undefined property: " . get_class($this) . "::\${$var}", E_USER_WARNING);
@@ -477,7 +511,7 @@ class Image Extends Common {
         }
     }
 
-    protected function _setOptions(array $options) {
+    public function setOptions(array $options) {
         foreach($options as $key => $val) {
             $this->$key = $val;
         }
