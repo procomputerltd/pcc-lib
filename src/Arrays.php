@@ -24,10 +24,11 @@ class Arrays {
     /**
      * Extends option values into associated default properties
      *
-     * @param array   $defaults         Defaults; initial name=>value pairs.
+     * @param array   $defaults         Allowed name=>value pairs. When $preserveOptions=FALSE non-allowed name=>value 
+     *                                  pairs are returned in $options.
      * @param array   $options          Option key=>value pairs to extend (fold) into the Defaults.
      * @param boolean $preserveOptions (optional, default=TRUE) When FALSE original options are unset so remainder
-     *                                                          can be inspected for invalid/orphaned params
+     *                                                          can be inspected for invalid/orphaned name=>value pairs
      * @param boolean $caseInsensitive (optional, default=TRUE) When TRUE array keys are converted to lowercase.
      * @param boolean $omitNull        (optional, default=FALSE) When TRUE keys with NULL value are omitted.
      *
