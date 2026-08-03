@@ -21,6 +21,33 @@ namespace Procomputer\Pcclib\Html;
 class Common {
 
     /**
+     * Merges element attributes.
+     * @param array $attributes
+     * @return array
+     */
+    public function mergeAttributes(array $attributes, ...$mergedAttributes): array {
+        foreach($mergedAttributes as $attr) {
+            // Reject attributes that are not array.
+            if(is_array($attr)) {
+                foreach($attr as $k => $v) {
+                    // Reject attributes names that are not string.
+                    if(is_string($k)) {
+                        switch(strtolower($k)) {
+                        case 'class':
+                        case 'autocomplete':
+                            $v = $this->addClass($attributes['class'] ?? '', $v);
+                            break;
+                        default:
+                        }
+                        $attributes[$k] = $v;
+                    }
+                }
+            }
+        }
+        return $attributes;
+    }
+    
+    /**
      * Build HTML element attribute declarations.
      * @param array $attributes
      * @return string
@@ -29,6 +56,9 @@ class Common {
         if(!empty($attributes)) {
             $attr = [];
             foreach($attributes as $t => $v) {
+                if(! is_string($v)) {
+                    $break = 1;
+                }
                 $trimmed = trim($t);
                 if(!strlen($trimmed)) {
                     continue;
