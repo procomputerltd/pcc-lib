@@ -68,14 +68,22 @@ class Upload {
      */
     public function importUploadedFiles(array|HttpFile $files, array $options = []) {
         $this->_files = [];
-        $uploadList =  ($files instanceof HttpFile) ? [$files] : (count($files) ? $this->_assembleFiles(($options['raw'] ?? false) ? $this->_convertRawFiles($files) : $files) : []);
-        if(empty($uploadList)) {
-            return [];
+        if($files instanceof HttpFile) {
+            $uploadList = [$files];
+        }
+        else {
+            // Convert RAW uploaded files retrieved directly from PHP $_FILES superglobal to individual file data.
+            $temp = ($options[' raw'] ?? false) ? $this->_convertRawFiles($files) : $files;
+            $uploadList = count($files) ? $this->_assembleFiles($temp) : [];
+            if(empty($uploadList)) {
+                return [];
+            }
         }
         $return = [];
         foreach($uploadList as $fileObject) {
-            /** @var \Procomputer\Pcclib\Http\File $fileObject */
+            /** @var HttpFile $fileObject */
             $error = $fileObject->getError();
+            // UPLOAD_ERR_NO_FILE(4) means no file(s) are selected in the FILE type form element.
             if(MediaConst::UPLOAD_ERR_NO_FILE !== $error) {
                 $error = $this->getUploadError($error);
                 $errMsg = '';
@@ -165,7 +173,7 @@ class Upload {
     }
     
     /**
-     * 
+     * Converts RAW uploaded files retrieved directly from PHP $_FILES superglobal to individual file data.
      * @param array $files
      * @return array
      */
@@ -194,7 +202,7 @@ class Upload {
      * @param array $properties
      * @return string|bool
      */
-    private function _validPropNames(array $properties) {
+private function _validPropNames(array $properties): string|bool {
         $badNames = [];
         foreach($properties as $propName => $value) {
             /*
@@ -206,7 +214,7 @@ class Upload {
             [full_path] => (string) nodejs-new-pantone-black.svg
             */
             if(! $this->_validPropName($propName)) {
-                $badNames[] = $propName;
+                $badNames[] = empty($propName) ? '(unknown)' : $propName;
             }
         }
         return count($badNames) ? implode(', ', $badNames) : true;
