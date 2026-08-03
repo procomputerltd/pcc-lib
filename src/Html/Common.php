@@ -22,22 +22,26 @@ class Common {
 
     /**
      * Merges element attributes.
-     * @param array $attributes
+     * @param array $attributes       Attributes
+     * @param bool  $replace          Replace(append) values for attributes 'class' and 'autocomplete'
+     * @param array $mergedAttributes Array of arrays of attributes to merge.
      * @return array
      */
-    public function mergeAttributes(array $attributes, ...$mergedAttributes): array {
+    public function mergeAttributes(array $attributes, bool $replace, ...$mergedAttributes): array {
         foreach($mergedAttributes as $attr) {
             // Reject attributes that are not array.
             if(is_array($attr)) {
                 foreach($attr as $k => $v) {
                     // Reject attributes names that are not string.
                     if(is_string($k)) {
-                        switch(strtolower($k)) {
-                        case 'class':
-                        case 'autocomplete':
-                            $v = $this->addClass($attributes[$k] ?? '', $v);
-                            break;
-                        default:
+                        if(! $replace) {
+                            switch(strtolower($k)) {
+                            case 'class':
+                            case 'autocomplete':
+                                $v = $this->addClass($attributes[$k] ?? '', $v);
+                                break;
+                            default:
+                            }
                         }
                         $attributes[$k] = $v;
                     }
@@ -73,7 +77,7 @@ class Common {
     }
     
     /**
-     * Adds class specifiers to a class string.
+     * Adds class specifiers to a class string. 
      * @param string       $class Class string to which to add.
      * @param string|array $value Value or values to add.
      * @return string
