@@ -201,11 +201,11 @@ class Types {
     }
 
     /**
-     * Returns the boolean value, TRUE or FALSE, for the parameter.
+     * Returns the boolean value of the parameter.
      *
-     * @param mixed $mixed       Value for which to get boolean value.
+     * @param mixed $mixed Value for which to get boolean value.
      *
-     * @return boolean   Return boolean value of the parameter.
+     * @return bool Returns bool value of the parameter.
      */
     public static function boolVal($mixed) {
         if(is_bool($mixed)) {

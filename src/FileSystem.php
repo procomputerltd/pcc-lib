@@ -15,6 +15,9 @@ for more details.
 */
 namespace Procomputer\Pcclib;
 
+use Procomputer\Pcclib\Exception\RuntimeException;
+use Procomputer\Pcclib\Exception\InvalidArgumentException;
+
 /**
  * 
  */
@@ -78,6 +81,8 @@ class FileSystem extends Common {
      * @param string $newName  New item name.
      *
      * @return boolean  Returns TRUE if successful else FALSE.
+     * @throws InvalidArgumentException
+     * @throws RuntimeException
      */
     public static function renameFile($oldName, $newName) {
         if(!is_string($oldName) || !strlen(trim($oldName))) {
@@ -90,7 +95,7 @@ class FileSystem extends Common {
             $var = Types::getVartype($$param, 32);
             $msg = "cannot rename file: invalid '{$param}' file/path parameter '{$var}'";
             if(self::$_throwErrors) {
-                throw new Exception\InvalidArgumentException($msg);
+                throw new InvalidArgumentException($msg);
             }
             return new Error($msg, Constant::E_PARAMETER_INVALID);
         }
@@ -99,7 +104,7 @@ class FileSystem extends Common {
             $var = Types::getVartype($oldName);
             $msg = "cannot rename file: file not found: {$var}";
             if(self::$_throwErrors) {
-                throw new Exception\RuntimeException($msg);
+                throw new RuntimeException($msg);
             }
             return new Error($msg, Constant::E_FILE_NOT_FOUND);
         }
@@ -115,7 +120,7 @@ class FileSystem extends Common {
             $code = Constant::E_FILE_RENAME;
             $msg = $phpErrHandler->getErrorMsg("rename() method failed", "Cannot rename '{$oldName}' to '{$newName}'");
             if(self::$_throwErrors) {
-                throw new Exception\RuntimeException($msg, $code);
+                throw new RuntimeException($msg, $code);
             }
             return new Error($msg, $code);
         }
@@ -130,6 +135,7 @@ class FileSystem extends Common {
      * @param boolean  $overwrite   (optional) Safety switch: only when TRUE is existing file overwritten.
      *
      * @return boolean Returns TRUE on success, FALSE on fail.
+     * @throws RuntimeException
      */
     public static function copyFile($source, $dest, $overwrite = false) {
         if(!is_string($source) || !strlen(trim($source))) {
@@ -142,7 +148,7 @@ class FileSystem extends Common {
             $var = Types::getVarType($$param);
             $msg = "cannot copy file: invalid '{$param}' file/path parameter '{$var}'";
             if(self::$_throwErrors) {
-                throw new Exception\RuntimeException($msg, Constant::E_PARAMETER_INVALID);
+                throw new RuntimeException($msg, Constant::E_PARAMETER_INVALID);
             }
             return new Error($msg, Constant::E_PARAMETER_INVALID);
         }
@@ -152,7 +158,7 @@ class FileSystem extends Common {
             $var = Types::getVarType($source);
             $msg = "cannot copy file: source is not a file: '{$var}'";
             if(self::$_throwErrors) {
-                throw new Exception\RuntimeException($msg, Constant::E_FILE_NOT_FOUND);
+                throw new RuntimeException($msg, Constant::E_FILE_NOT_FOUND);
             }
             return new Error($msg, Constant::E_FILE_NOT_FOUND);
         }
@@ -161,7 +167,7 @@ class FileSystem extends Common {
             $var = Types::getVarType($dest);
             $msg = "cannot copy file: file exists and overwrite not allowed: '{$var}'";
             if(self::$_throwErrors) {
-                throw new Exception\RuntimeException($msg, Constant::E_FILE_EXISTS);
+                throw new RuntimeException($msg, Constant::E_FILE_EXISTS);
             }
             return new Error($msg, Constant::E_FILE_EXISTS);
         }
@@ -177,7 +183,7 @@ class FileSystem extends Common {
             $errno = Constant::E_FILE_COPY;
             $msg = $phpErrHandler->getErrorMsg("copy() method failed", "Cannot copy '{$realSource}' to '{$dest}'");
             if(self::$_throwErrors) {
-                throw new Exception\RuntimeException($msg, $errno);
+                throw new RuntimeException($msg, $errno);
             }
             return new Error($msg, $errno);
         }
@@ -192,6 +198,8 @@ class FileSystem extends Common {
      * @param boolean  $overwrite   (optional) Safety switch: only when TRUE is existing file overwritten.
      *
      * @return boolean Returns TRUE on success, FALSE on fail.
+     * @throws InvalidArgumentException
+     * @throws RuntimeException
      */
     public static function filePutContents($data, $file, $overwrite = false) {
         if(!is_string($data) || !strlen(trim($data))) {
@@ -205,7 +213,7 @@ class FileSystem extends Common {
             $var = Types::getVarType($$param, isset($max) ? $max : 256);
             $msg = "cannot write file data: invalid '{$param}' file/path parameter '{$var}'";
             if(self::$_throwErrors) {
-                throw new Exception\InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
+                throw new InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
             }
             return new Error($msg, Constant::E_PARAMETER_INVALID);
         }
@@ -214,7 +222,7 @@ class FileSystem extends Common {
             $var = Types::getVarType($file);
             $msg = "cannot write file data: file exists and overwrite not allowed: '{$var}'";
             if(self::$_throwErrors) {
-                throw new Exception\RuntimeException($msg, Constant::E_FILE_EXISTS);
+                throw new RuntimeException($msg, Constant::E_FILE_EXISTS);
             }
             return new Error($msg, Constant::E_FILE_EXISTS);
         }
@@ -230,7 +238,7 @@ class FileSystem extends Common {
             $errno = Constant::E_FILE_WRITE;
             $msg = $phpErrHandler->getErrorMsg("file_put_contents() method failed", "Cannot write data to file '{$file}'");
             if(self::$_throwErrors) {
-                throw new Exception\RuntimeException($msg, $errno);
+                throw new RuntimeException($msg, $errno);
             }
             return new Error($msg, $errno);
         }
@@ -243,13 +251,15 @@ class FileSystem extends Common {
      * @param string   $file   File path to delete.
      *
      * @return boolean Returns TRUE on success, FALSE on fail.
+     * @throws InvalidArgumentException
+     * @throws RuntimeException
      */
     public static function deleteFile($file) {
         if(!is_string($file) || !strlen(trim($file))) {
             $var = Types::getVarType($file);
             $msg = "cannot delete: invalid file/path parameter '{$var}'";
             if(self::$_throwErrors) {
-                throw new Exception\InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
+                throw new InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
             }
             return new Error($msg, Constant::E_PARAMETER_INVALID);
         }
@@ -275,7 +285,7 @@ class FileSystem extends Common {
             $code = Constant::E_FILE_DELETE;
         }
         if(self::$_throwErrors) {
-            throw new Exception\RuntimeException($msg, $code);
+            throw new RuntimeException($msg, $code);
         }
         return new Error($msg, $code);
     }
@@ -284,13 +294,14 @@ class FileSystem extends Common {
      * Use this to determine file lock eligibility.
      * @param string $file      File to check lock eligibility.
      * @param int    $operation (optional) flock() operation.
+     * @throws InvalidArgumentException
      */
     public static function canLock($file, $operation = LOCK_EX | LOCK_NB) {
         if(! is_string($file) || !strlen(trim($file))) {
             $var = Types::getVarType($file);
             $msg = "cannot chack lock status: invalid file/path parameter '{$var}'";
             if(self::$_throwErrors) {
-                throw new Exception\InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
+                throw new InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
             }
             return new Error($msg, Constant::E_PARAMETER_INVALID);
         }
@@ -334,14 +345,16 @@ class FileSystem extends Common {
      * @param int     $mode      (optional) File mode. Default 0x1ff = 0777 octal
      * @param boolean $recursive (optional) Creates parent directories in the path if they don't exist.
      *
-     * @return boolean
+     * @return boolean|Error
+     * @throws InvalidArgumentException
+     * @throws RuntimeException
      */
     public static function createDirectory($directory, $mode = 0x1ff, $recursive = false) {
         if(!is_string($directory) || !strlen(trim($directory))) {
             $var = Types::getVarType($directory);
             $msg = "cannot create directory: invalid file/path parameter '{$var}'";
             if(self::$_throwErrors) {
-                throw new Exception\InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
+                throw new InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
             }
             return new Error($msg, Constant::E_PARAMETER_INVALID);
         }
@@ -355,7 +368,7 @@ class FileSystem extends Common {
         }
         $msg = $phpErrHandler->getErrorMsg("mkdir() method failed", "cannot create directory '{$directory}'");
         if(self::$_throwErrors) {
-            throw new Exception\RuntimeException($msg, Constant::E_DIRECTORY_CREATE);
+            throw new RuntimeException($msg, Constant::E_DIRECTORY_CREATE);
         }
         return new Error($msg, Constant::E_DIRECTORY_CREATE);
     }
@@ -371,7 +384,8 @@ class FileSystem extends Common {
      * @param int     $fileMode     (optional) File mode (permissions) which to have 'chmod()' modify the file permissions mode.
      *
      * @return string  Returns the path of the temporary file.
-     *
+     * @throws InvalidArgumentException
+     * @throws RuntimeException
      */
     public static function createTempFile($directory = null, $filePrefix = "pcc", $keep = false, $fileMode = null) {
         if(null !== $directory) {
@@ -380,7 +394,7 @@ class FileSystem extends Common {
                 $var = Types::getVarType($directory);
                 $msg = "cannot create temporary file: invalid path parameter '{$var}'";
                 if(self::$_throwErrors) {
-                    throw new Exception\InvalidArgumentException($msg, Constant::E_FILE_NOT_FOUND);
+                    throw new InvalidArgumentException($msg, Constant::E_FILE_NOT_FOUND);
                 }
                 return new Error($msg, Constant::E_FILE_NOT_FOUND);
             }
@@ -391,7 +405,7 @@ class FileSystem extends Common {
             // invalid '%s' parameter '%s'
             $msg = sprintf(Constant::T_PARAMETER_INVALID, 'fileMode', Types::getVartype($fileMode)) . ": expecting a file mode integer";
             if(self::$_throwErrors) {
-                throw new Exception\InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
+                throw new InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
             }
             return new Error($msg, Constant::E_PARAMETER_INVALID);
         }
@@ -405,7 +419,7 @@ class FileSystem extends Common {
         if(! $tmpfile) {
             $msg = $phpErrHandler->getErrorMsg("'tempnam()' method failed", "cannot create temporary file");
             if(self::$_throwErrors) {
-                throw new Exception\RuntimeException($msg, Constant::E_FILE_MKTEMP);
+                throw new RuntimeException($msg, Constant::E_FILE_MKTEMP);
             }
             return new Error($msg, Constant::E_FILE_MKTEMP);
         }
@@ -421,7 +435,7 @@ class FileSystem extends Common {
                     return unlink($tmpfile);
                 });
                 if(self::$_throwErrors) {
-                    throw new Exception\RuntimeException($msg, Constant::E_FILE_MKTEMP);
+                    throw new RuntimeException($msg, Constant::E_FILE_MKTEMP);
                 }
                 return new Error($msg, Constant::E_FILE_MKTEMP);
             }
@@ -463,7 +477,7 @@ class FileSystem extends Common {
                 $msg .= ': expecting ' . $expect;
             }
             if(self::$_throwErrors) {
-                throw new Exception\InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
+                throw new InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
             }
             return new Error($msg, Constant::E_PARAMETER_INVALID);
         }
@@ -488,7 +502,7 @@ class FileSystem extends Common {
                 }
                 $phpErrHandler->getErrorMsg('chdir() method failed', $msg);
                 if(self::$_throwErrors) {
-                    throw new Exception\RuntimeException($msg, Constant::E_PARAMETER_INVALID);
+                    throw new RuntimeException($msg, Constant::E_PARAMETER_INVALID);
                 }
                 return new Error($msg, Constant::E_PARAMETER_INVALID);
             }
@@ -501,7 +515,7 @@ class FileSystem extends Common {
                    // file not found '%s': %s
                     $msg = sprintf(Constant::T_FILE_NOT_FOUND, Types::getVartype($directory), "invalid drive specifier '{$matches[1]}'");
                     if(self::$_throwErrors) {
-                        throw new Exception\RuntimeException($msg, Constant::E_PATH_NOT_FOUND);
+                        throw new RuntimeException($msg, Constant::E_PATH_NOT_FOUND);
                     }
                     return new Error($msg, Constant::E_PATH_NOT_FOUND);
                 }
@@ -541,7 +555,7 @@ class FileSystem extends Common {
                             });
                         }
                         if(self::$_throwErrors) {
-                            throw new Exception\RuntimeException($msg, Constant::E_DIRECTORY_CREATE);
+                            throw new RuntimeException($msg, Constant::E_DIRECTORY_CREATE);
                         }
                         return new Error($msg, Constant::E_DIRECTORY_CREATE);
                     }
@@ -580,7 +594,7 @@ class FileSystem extends Common {
                 $msg .= ': expecting ' . $expect;
             }
             if(self::$_throwErrors) {
-                throw new Exception\InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
+                throw new InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
             }
             return new Error($msg, Constant::E_PARAMETER_INVALID);
         }
@@ -593,7 +607,7 @@ class FileSystem extends Common {
             $msg = $phpErrHandler->getErrorMsg("file not found", 'the parameter is not a file');
             // The file is not found.
             if(self::$_throwErrors) {
-                throw new Exception\RuntimeException($msg, Constant::E_FILE_NOT_FOUND);
+                throw new RuntimeException($msg, Constant::E_FILE_NOT_FOUND);
             }
             return new Error($msg, Constant::E_FILE_NOT_FOUND);
         }
@@ -607,7 +621,7 @@ class FileSystem extends Common {
             $msg = $phpErrHandler->getErrorMsg("method 'tempnam()' failed", 'cannot create temporary file');
             // The file is not found.
             if(self::$_throwErrors) {
-                throw new Exception\RuntimeException($msg, Constant::E_FILE_MKTEMP);
+                throw new RuntimeException($msg, Constant::E_FILE_MKTEMP);
             }
             return new Error($msg, Constant::E_FILE_MKTEMP);
         }
@@ -625,7 +639,7 @@ class FileSystem extends Common {
             return unlink($backupFile) ;
         });
         if(self::$_throwErrors) {
-            throw new Exception\RuntimeException($msg, Constant::E_FILE_COPY);
+            throw new RuntimeException($msg, Constant::E_FILE_COPY);
         }
         return new Error($msg, Constant::E_FILE_COPY);
     }
@@ -655,7 +669,7 @@ class FileSystem extends Common {
             // T_BAD_RESOURCE = "invalid file resource handle parameter '%s': '%s'"
             $msg = sprintf(Constant::T_BAD_RESOURCE, $badParam, Types::getVartype($$badParam));
             if(self::$_throwErrors) {
-                throw new Exception\InvalidArgumentException($msg, $code);
+                throw new InvalidArgumentException($msg, $code);
             }
             return new Error($msg, $code);
         }
@@ -679,7 +693,7 @@ class FileSystem extends Common {
             // invalid '%s' parameter '%s'
             $msg = sprintf(Constant::T_PARAMETER_INVALID, $badParam, Types::getVartype($$badParam)) . ": expecting " . $expect;
             if(self::$_throwErrors) {
-                throw new Exception\InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
+                throw new InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
             }
             return new Error($msg, Constant::E_PARAMETER_INVALID);
         }
@@ -697,7 +711,7 @@ class FileSystem extends Common {
         if(false === $copyCount || $copyCount < 0) {
             $msg = $phpErrHandler->getErrorMsg("method 'stream_copy_to_stream()' failed", 'an error occurred in a file or socket');
             if(self::$_throwErrors) {
-                throw new Exception\InvalidArgumentException($msg, Constant::E_FILE_COPY);
+                throw new InvalidArgumentException($msg, Constant::E_FILE_COPY);
             }
             return new Error($msg, Constant::E_FILE_COPY);
         }
@@ -707,7 +721,7 @@ class FileSystem extends Common {
             // the size of the file exceeds the specified maximum of '%s'
             $msg = sprintf(Constant::T_FILE_TOO_LARGE, $maxFileSize);
             if(self::$_throwErrors) {
-                throw new Exception\RuntimeException($msg, Constant::E_FILE_TOO_LARGE);
+                throw new RuntimeException($msg, Constant::E_FILE_TOO_LARGE);
             }
             return new Error($msg, Constant::E_FILE_TOO_LARGE);
         }
@@ -757,7 +771,7 @@ class FileSystem extends Common {
                 $msg .= ": expecting " . $expect;
             }
             if(self::$_throwErrors) {
-                throw new Exception\InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
+                throw new InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
             }
             return new Error($msg, Constant::E_PARAMETER_INVALID);
         }
@@ -780,7 +794,7 @@ class FileSystem extends Common {
         // T_CREATE_UNIQUE_MAXED = "cannot create unique filename after %s attempts in the specified path '%s'"
         $msg = sprintf(Constant::T_CREATE_UNIQUE_MAXED, $max, $dirname);
         if(self::$_throwErrors) {
-            throw new Exception\RuntimeException($msg, Constant::E_CREATE_UNIQUE);
+            throw new RuntimeException($msg, Constant::E_CREATE_UNIQUE);
         }
         return new Error($msg, Constant::E_CREATE_UNIQUE);
     }
@@ -815,7 +829,7 @@ class FileSystem extends Common {
                 $msg .= ": expecting " . $expect;
             }
             if(self::$_throwErrors) {
-                throw new Exception\InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
+                throw new InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
             }
             return new Error($msg, Constant::E_PARAMETER_INVALID);
         }
@@ -956,7 +970,7 @@ class FileSystem extends Common {
             $msg = "cannot remove path slash: " . sprintf(Constant::T_PARAMETER_INVALID, 'path', Types::getVartype($path)) 
                 . ": expecting file path string";
             if(self::$_throwErrors) {
-                throw new Exception\InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
+                throw new InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
             }
             return new Error($msg, Constant::E_PARAMETER_INVALID);
         }
@@ -986,7 +1000,7 @@ class FileSystem extends Common {
             $msg = "cannot remove leading path slashes: " . sprintf(Constant::T_PARAMETER_INVALID, 'path', Types::getVartype($path)) 
                 . ": expecting file path string";
             if(self::$_throwErrors) {
-                throw new Exception\InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
+                throw new InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
             }
             return new Error($msg, Constant::E_PARAMETER_INVALID);
         }
@@ -1016,7 +1030,7 @@ class FileSystem extends Common {
             $msg = "cannot add path slash: " . sprintf(Constant::T_PARAMETER_INVALID, 'path', Types::getVartype($path)) 
                 . ": expecting file path string";
             if(self::$_throwErrors) {
-                throw new Exception\InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
+                throw new InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
             }
             return new Error($msg, Constant::E_PARAMETER_INVALID);
         }
@@ -1052,7 +1066,7 @@ class FileSystem extends Common {
             $msg = "cannot get file basename: " . sprintf(Constant::T_PARAMETER_INVALID, 'path', Types::getVartype($path)) 
                 . ": expecting file path string";
             if(self::$_throwErrors) {
-                throw new Exception\InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
+                throw new InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
             }
             return new Error($msg, Constant::E_PARAMETER_INVALID);
         }
@@ -1077,7 +1091,7 @@ class FileSystem extends Common {
             $msg = "cannot get file extension: " . sprintf(Constant::T_PARAMETER_INVALID, 'path', Types::getVartype($path)) 
                 . ": expecting file path string";
             if(self::$_throwErrors) {
-                throw new Exception\InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
+                throw new InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
             }
             return new Error($msg, Constant::E_PARAMETER_INVALID);
         }
@@ -1108,7 +1122,7 @@ class FileSystem extends Common {
             $msg = "cannot prepend/remove file extension dot: " . sprintf(Constant::T_PARAMETER_INVALID, 'ext', Types::getVartype($ext)) 
                 . ": expecting file extension string";
             if(self::$_throwErrors) {
-                throw new Exception\InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
+                throw new InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
             }
             return new Error($msg, Constant::E_PARAMETER_INVALID);
         }
@@ -1134,7 +1148,7 @@ class FileSystem extends Common {
             // invalid '%s' parameter '%s'
             $msg = sprintf(Constant::T_PARAMETER_INVALID, 'file', Types::getVartype($file)) . ": expecting existing file";
             if(self::$_throwErrors) {
-                throw new Exception\InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
+                throw new InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
             }
             return new Error($msg, Constant::E_PARAMETER_INVALID);
         }
@@ -1153,7 +1167,7 @@ class FileSystem extends Common {
             // invalid '%s' parameter '%s'
             $msg = sprintf(Constant::T_PARAMETER_INVALID, 'fileExtension', Types::getVartype($fileExtension)) . ": expecting a string file extension";
             if(self::$_throwErrors) {
-                throw new Exception\InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
+                throw new InvalidArgumentException($msg, Constant::E_PARAMETER_INVALID);
             }
             return new Error($msg, Constant::E_PARAMETER_INVALID);
         }
