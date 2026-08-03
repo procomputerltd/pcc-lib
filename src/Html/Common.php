@@ -35,7 +35,7 @@ class Common {
                         switch(strtolower($k)) {
                         case 'class':
                         case 'autocomplete':
-                            $v = $this->addClass($attributes['class'] ?? '', $v);
+                            $v = $this->addClass($attributes[$k] ?? '', $v);
                             break;
                         default:
                         }
