@@ -73,10 +73,19 @@ trait Messages {
 
     /**
      * Clears messages.
-     * @return ServiceCommon
+     * @return $this
      */
     public function clearMessages() {
         $this->messageStore()->clearMessages();
+        return $this;
+    }
+    
+    /**
+     * Sets number of message limit.
+     * @return $this
+     */
+    public function setLimit(int|float $max) {
+        $this->messageStore()->setLimit($max);
         return $this;
     }
 }

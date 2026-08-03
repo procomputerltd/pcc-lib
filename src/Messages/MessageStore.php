@@ -11,6 +11,8 @@ class MessageStore {
      */
     private $_messages = [];
 
+    private $_limit = 500;
+    
     /**
      * Saves message or messages.
      * @param string|array|\Traversable|Message|MessageStore|\Throwable $messages Message or messages.
@@ -19,6 +21,14 @@ class MessageStore {
      * @return self
      */
     public function addMessage(string|array|\Traversable|Message|MessageStore|\Throwable $messages, string $messageType = 'default', string $title = '') {
+        $c = $this->getMessageCount();
+        if($this->_limit > 5 && $c >= $this->_limit) {
+            if($c === $this->_limit) {
+                $msg = "(messages limit reached({$this->_limit}))";
+                $this->_messages[] = new Message($msg, 'default');
+            }
+            return $this;
+        }
         $defaultType = $this->_resolveMessageType($messageType);
         if(is_scalar($messages)) {
             $msg = is_bool($messages) ? Types::getVartype($messages, 0x7fff) : (string)$messages;
@@ -126,6 +136,15 @@ class MessageStore {
      */
     public function clearMessages() {
         $this->_messages = [];
+        return $this;
+    }
+    
+    /**
+     * Sets number of message limit.
+     * @return $this
+     */
+    public function setLimit(int|float $max) {
+        $this->_limit = $max;
         return $this;
     }
     
