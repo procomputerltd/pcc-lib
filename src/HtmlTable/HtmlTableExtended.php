@@ -25,7 +25,7 @@ use Procomputer\Pcclib\Types;
  *     headers          array             Column headers. 
  *     sort             bool              Apply sorting arrows in the headers. 
  *     sortattributes   array             Attributes applied to column sorting hyperlink.
- *     rowcolumn        bool|string       Display a number row column. May be bool or string eg '#' 
+ *     rowcolumn        bool|string       Display a number row column. May be true/false or string eg '#' 
  *     title            string            Table title
  */
 class HtmlTableExtended {
@@ -44,18 +44,6 @@ class HtmlTableExtended {
     protected $_htmlTable = null;
     
     /**
-     * Returns the html table creator object.
-     * @param bool $createNew Create a new html table creator object.
-     * @return HtmlTable
-     */
-    public function getHtmlTable(bool $createNew = false) {
-        if($createNew || null === $this->_htmlTable) {
-            $this->_htmlTable = new HtmlTable();
-        }
-        return $this->_htmlTable;
-    }
-    
-    /**
      * 
      * @param iterable $data
      * @param array    $options
@@ -65,7 +53,7 @@ class HtmlTableExtended {
         $columnCount = 0;
         $dataObj = new \ArrayObject();
         foreach($data as $dataRow) {
-            $array = (array)$dataRow;
+            $array = Arrays::toArray($dataRow);
             $c = count($array);
             if($columnCount < $c) {
                 $columnCount = $colspan = $c;
@@ -87,6 +75,7 @@ class HtmlTableExtended {
             'sort'            => false,
             'title'           => false,
         ];
+        // NOTE: ONLY array key=>value pairs in $defaults are collected.
         $lcOptions = Arrays::extend($defaults, $options);
         if($lcOptions['rowcolumn']) {
             $colspan++;
@@ -148,6 +137,18 @@ class HtmlTableExtended {
         return $htmlTable->render(empty($attributes) ? [] : ['attributes' => $attributes]);
     }
 
+    /**
+     * Returns the html table creator object.
+     * @param bool $createNew Create a new html table creator object.
+     * @return HtmlTable
+     */
+    public function getHtmlTable(bool $createNew = false) {
+        if($createNew || null === $this->_htmlTable) {
+            $this->_htmlTable = new HtmlTable();
+        }
+        return $this->_htmlTable;
+    }
+    
     /**
      * Decodes a sort value into a 3-element array of constituent parts as follows: [column, current, descending]
      * @return array
